@@ -1,0 +1,58 @@
+USER_SECTIONS	.bootloader
+USER_SECTIONS	.loader
+USER_SECTIONS   .wifi_firmware
+
+
+HEAD 0x00000000
+{
+	BOOTLOADER 0x80000000
+	{
+		ADDR __flash_start
+		* KEEP (.bootloader)
+	}
+}
+
+MEM 0x80000000 ALIGN 256 0x00080000 ; max_size=512K
+{
+	EILM 0x80000000
+	{
+		LOADADDR NEXT __text_lmastart
+		ADDR NEXT __text_start
+		* (+ISR)
+		* (+RO-CODE)
+		LOADADDR __text_lmaend
+	}
+
+	EDLM 0x00000100
+	{
+		LOADADDR NEXT __data_lmastart
+		ADDR NEXT __data_start
+		* (+RW)
+		LOADADDR __data_lmaend
+		* (+ZI)
+		STACK = 0x00040000
+	}
+	
+}
+
+RO +0 ALIGN 512;
+{
+	RODATA 0x00200000
+	{
+		LOADADDR NEXT __RODATA_lmastart
+		ADDR NEXT __RODATA_start
+		* (+RO-DATA)
+		ADDR NEXT __RODATA_end
+	}
+}
+
+WIFI +0 ALIGN 512;
+{
+	FIRMWARE 0x00400000
+	{
+		LOADADDR NEXT __wifi_lmastart
+		ADDR NEXT __wifi_start
+		* KEEP (.wifi_firmware)
+		LOADADDR __wifi_lmaend
+	}
+}
