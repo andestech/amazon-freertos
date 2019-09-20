@@ -56,7 +56,7 @@
 #define mainLOGGING_WIFI_STATUS_DELAY			pdMS_TO_TICKS( 1000 )
 
 /* The name of the devices for xApplicationDNSQueryHook. */
-#define mainDEVICE_NICK_NAME				"vendor_demo" /* FIX ME.*/
+#define mainDEVICE_NICK_NAME				"Andes_demo" /* FIX ME.*/
 
 /* Static arrays for FreeRTOS-Plus-TCP stack initialization for Ethernet network
  * connections are declared below. If you are using an Ethernet connection on your MCU

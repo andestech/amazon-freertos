@@ -130,11 +130,6 @@ void vApplicationDaemonTaskStartupHook( void );
 void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent );
 
 /**
- * @brief Connects to Wi-Fi.
- */
-//static void prvWifiConnect( void );
-
-/**
  * @brief Initializes the board.
  */
 static void prvMiscInitialization( void );
@@ -159,9 +154,6 @@ int main( void )
     xLoggingTaskInitialize( mainLOGGING_TASK_STACK_SIZE,
                             tskIDLE_PRIORITY,
                             mainLOGGING_MESSAGE_QUEUE_LENGTH );
-
-    /* FIX ME: If you are using Ethernet network connections and the FreeRTOS+TCP stack,
-     * uncomment the initialization function, FreeRTOS_IPInit(), below. */
 
     FreeRTOS_IPInit( ucIPAddress,
                      ucNetMask,
@@ -188,33 +180,6 @@ static void prvMiscInitialization( void )
 }
 /*-----------------------------------------------------------*/
 
-void vApplicationDaemonTaskStartupHook( void )
-{
-    /* FIX ME: Perform any hardware initialization, that require the RTOS to be
-     * running, here. */
-
-    #if 0
-    /* FIX ME: If your MCU is using Wi-Fi, delete surrounding compiler directives to
-     * enable the unit tests and after MQTT, Bufferpool, and Secure Sockets libraries
-     * have been imported into the project. If you are not using Wi-Fi, see the
-     * vApplicationIPNetworkEventHook function. */
-        if( SYSTEM_Init() == pdPASS )
-        {
-            /* Connect to the Wi-Fi before running the tests. */
-            prvWifiConnect();
-
-            /* Provision the device with AWS certificate and private key. */
-
-            vDevModeKeyProvisioning();
-
-	    /* Start the demo tasks. */
-            DEMO_RUNNER_RunDemos();
-
-        }
-    #endif
-}
-/*-----------------------------------------------------------*/
-
 void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent )
 {
 
@@ -222,11 +187,7 @@ void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent )
     {
         configPRINT("Network connection successful.\n\r");
     }
-    /* FIX ME: If your application is using Ethernet network connections and the
-     * FreeRTOS+TCP stack, delete the surrounding compiler directives to enable the
-     * unit tests and after MQTT, Bufferpool, and Secure Sockets libraries have been
-     * imported into the project. If you are not using Ethernet see the
-     * vApplicationDaemonTaskStartupHook function. */
+
     uint32_t ulIPAddress, ulNetMask, ulGatewayAddress, ulDNSServerAddress;
     char cBuffer[ 16 ];
     static BaseType_t xTasksAlreadyCreated = pdFALSE;
@@ -266,93 +227,7 @@ void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent )
         FreeRTOS_inet_ntoa( ulDNSServerAddress, cBuffer );
         FreeRTOS_printf( ( "DNS Server Address: %s\r\n\r\n\r\n", cBuffer ) );
     }
-
-
-
-
-
-    #if 0
-    static BaseType_t xTasksAlreadyCreated = pdFALSE;
-
-    /* If the network has just come up...*/
-    if( eNetworkEvent == eNetworkUp )
-    {
-        if( ( xTasksAlreadyCreated == pdFALSE ) && ( SYSTEM_Init() == pdPASS ) )
-        {
-            xTaskCreate( TEST_RUNNER_RunTests_task,
-                         "TestRunner",
-                         TEST_RUNNER_TASK_STACK_SIZE,
-                         NULL,
-                         tskIDLE_PRIORITY, NULL );
-
-            xTasksAlreadyCreated = pdTRUE;
-        }
-    }
-    #endif /* if 0 */
 }
-/*-----------------------------------------------------------*/
-#if 0
-void prvWifiConnect( void )
-{
-    /* FIX ME: Delete surrounding compiler directives when the Wi-Fi library is ported. */
-        WIFINetworkParams_t xNetworkParams;
-        WIFIReturnCode_t xWifiStatus;
-        uint8_t ucTempIp[4] = { 0 };
-
-        xWifiStatus = WIFI_On();
-
-        if( xWifiStatus == eWiFiSuccess )
-        {
-            configPRINTF( ( "Wi-Fi module initialized. Connecting to AP...\r\n" ) );
-        }
-        else
-        {
-            configPRINTF( ( "Wi-Fi module failed to initialize.\r\n" ) );
-
-            /* Delay to allow the lower priority logging task to print the above status.
-             * The while loop below will block the above printing. */
-            vTaskDelay( mainLOGGING_WIFI_STATUS_DELAY );
-
-            while( 1 )
-            {
-            }
-        }
-
-        /* Setup parameters. */
-        xNetworkParams.pcSSID = clientcredentialWIFI_SSID;
-        xNetworkParams.ucSSIDLength = sizeof( clientcredentialWIFI_SSID );
-        xNetworkParams.pcPassword = clientcredentialWIFI_PASSWORD;
-        xNetworkParams.ucPasswordLength = sizeof( clientcredentialWIFI_PASSWORD );
-        xNetworkParams.xSecurity = clientcredentialWIFI_SECURITY;
-        xNetworkParams.cChannel = 0;
-
-        xWifiStatus = WIFI_ConnectAP( &( xNetworkParams ) );
-
-        if( xWifiStatus == eWiFiSuccess )
-        {
-            configPRINTF( ( "Wi-Fi Connected to AP. Creating tasks which use network...\r\n" ) );
-
-            xWifiStatus = WIFI_GetIP( ucTempIp );
-            if ( eWiFiSuccess == xWifiStatus )
-            {
-                configPRINTF( ( "IP Address acquired %d.%d.%d.%d\r\n",
-                                ucTempIp[ 0 ], ucTempIp[ 1 ], ucTempIp[ 2 ], ucTempIp[ 3 ] ) );
-            }
-        }
-        else
-        {
-            configPRINTF( ( "Wi-Fi failed to connect to AP.\r\n" ) );
-
-            /* Delay to allow the lower priority logging task to print the above status.
-             * The while loop below will block the above printing. */
-            vTaskDelay( mainLOGGING_WIFI_STATUS_DELAY );
-
-            while( 1 )
-            {
-            }
-        }
-}
-#endif
 /*-----------------------------------------------------------*/
 
 /**

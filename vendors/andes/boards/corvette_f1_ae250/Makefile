@@ -45,7 +45,7 @@ endif
 
 
 # Define the directories
-ROOT			= /home/kevin/Amazon_FreeRTOS/20190606_AWSFreeRTOS/amazon-freertos
+ROOT			= ../../../../../amazon-freertos
 NDS_SOURCE_DIR		= $(ROOT)/vendors/andes/V5
 BSP_SOURCE_DIR          = $(ROOT)/vendors/andes/V5/bsp
 DEVICE_DRI_DIR		= $(NDS_SOURCE_DIR)/bsp/driver
@@ -184,7 +184,7 @@ FREERTOS_SRCS = \
 	$(FREERTOS_SOURCE_DIR)/timers.c \
 	$(FREERTOS_SOURCE_DIR)/event_groups.c \
 	$(FREERTOS_SOURCE_DIR)/stream_buffer.c \
-	$(FREERTOS_SOURCE_DIR)/portable/MemMang/heap_4.c 
+	$(FREERTOS_SOURCE_DIR)/portable/MemMang/heap_4.c
 
 PORT_SRCS = \
 	$(FREERTOS_SOURCE_DIR)/portable/GCC/RISC-V/port.c \
@@ -387,7 +387,7 @@ $(PROG).elf  : $(OBJS) $(ROOT)/vendors/andes/boards/corvette_f1_ae250/Makefile
 
 clean :
 	@rm -f $(OBJS) $(OBJS:.o=.d)
-	@rm -f $(PROG).elf 
+	@rm -f $(PROG).elf
 	@rm -f $(PROG).bin
 	@rm -f $(PROG).asm
 
