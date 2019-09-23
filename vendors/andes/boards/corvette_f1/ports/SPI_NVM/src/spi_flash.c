@@ -84,7 +84,7 @@ void Flash_Read(uint32_t * Flash_Address, uint8_t * Data,  uint32_t Data_Size){
 		}
 
 		data_send[0] = (uint8_t)OPCODE_READ;
-		data_send[1] = (uint8_t)(((uint32_t)Flash_Address >> 16 ) & 0xff); 
+		data_send[1] = (uint8_t)(((uint32_t)Flash_Address >> 16 ) & 0xff);
 		data_send[2] = (uint8_t)(((uint32_t)Flash_Address >>  8 ) & 0xff);
 		data_send[3] = (uint8_t)(((uint32_t)Flash_Address ) & 0xff);
 
@@ -94,7 +94,7 @@ void Flash_Read(uint32_t * Flash_Address, uint8_t * Data,  uint32_t Data_Size){
 		for(int i = 0; i < (SEND_SIZE - Cmd_Size); i++){
 			Data[loop*256 + i] = data_receive[Cmd_Size + i];
 		}
-		
+
 		Flash_Address = (uint32_t *)((uint32_t)Flash_Address + (uint32_t)(SEND_SIZE - Cmd_Size));
 
 		Data_Size = Data_Size - (SEND_SIZE - Cmd_Size);
@@ -127,7 +127,7 @@ void Flash_Write(uint32_t * Flash_Address, uint8_t * Data,  uint32_t Data_Size){
 		}
 
 		data_send[0] = (uint8_t)OPCODE_PP;
-		data_send[1] = (uint8_t)(((uint32_t)Flash_Address >> 16 ) & 0xff); 
+		data_send[1] = (uint8_t)(((uint32_t)Flash_Address >> 16 ) & 0xff);
 		data_send[2] = (uint8_t)(((uint32_t)Flash_Address >>  8 ) & 0xff);
 		data_send[3] = (uint8_t)(((uint32_t)Flash_Address ) & 0xff);
 
@@ -181,7 +181,7 @@ void Flash_Erase( uint32_t * Flash_Address, int Data_Size){
 
 		/*Set the flash command & Address*/
 		data_send[0] = (uint8_t)OPCODE_SE;
-		data_send[1] = (uint8_t)(((uint32_t)Erase_Address >> 16 ) & 0xff); 
+		data_send[1] = (uint8_t)(((uint32_t)Erase_Address >> 16 ) & 0xff);
 		data_send[2] = (uint8_t)(((uint32_t)Erase_Address >>  8 ) & 0xff);
 		data_send[3] = (uint8_t)(((uint32_t)Erase_Address ) & 0xff);
 

@@ -112,9 +112,9 @@ static const uint8_t ucDNSServerAddress[ 4 ] =
 };
 
 /**
- * @brief Application task startup hook for applications using Wi-Fi. If you are not 
+ * @brief Application task startup hook for applications using Wi-Fi. If you are not
  * using Wi-Fi, then start network dependent applications in the vApplicationIPNetorkEventHook
- * function. If you are not using Wi-Fi, this hook can be disabled by setting 
+ * function. If you are not using Wi-Fi, this hook can be disabled by setting
  * configUSE_DAEMON_TASK_STARTUP_HOOK to 0.
  */
 void vApplicationDaemonTaskStartupHook( void );
@@ -292,7 +292,6 @@ void vApplicationIdleHook( void )
 
         return xReturn;
     }
-	
 #endif /* if ( ipconfigUSE_LLMNR != 0 ) || ( ipconfigUSE_NBNS != 0 ) */
 /*-----------------------------------------------------------*/
 
@@ -303,27 +302,27 @@ void vApplicationIdleHook( void )
 void vAssertCalled(const char * pcFile,
 	uint32_t ulLine)
 {
-	const uint32_t ulLongSleep = 1000UL;
-	volatile uint32_t ulBlockVariable = 0UL;
-	volatile char * pcFileName = (volatile char *)pcFile;
-	volatile uint32_t ulLineNumber = ulLine;
+    const uint32_t ulLongSleep = 1000UL;
+    volatile uint32_t ulBlockVariable = 0UL;
+    volatile char * pcFileName = (volatile char *)pcFile;
+    volatile uint32_t ulLineNumber = ulLine;
 
-	(void)pcFileName;
-	(void)ulLineNumber;
+    (void)pcFileName;
+    (void)ulLineNumber;
 
-	printf("vAssertCalled %s, %ld\n", pcFile, (long)ulLine);
-	fflush(stdout);
+    printf("vAssertCalled %s, %ld\n", pcFile, (long)ulLine);
+    fflush(stdout);
 
-	/* Setting ulBlockVariable to a non-zero value in the debugger will allow
-	* this function to be exited. */
-	taskDISABLE_INTERRUPTS();
-	{
-		while (ulBlockVariable == 0UL)
-		{
-			vTaskDelay( pdMS_TO_TICKS( ulLongSleep ) );
-		}
-	}
-	taskENABLE_INTERRUPTS();
+    /* Setting ulBlockVariable to a non-zero value in the debugger will allow
+     * this function to be exited. */
+    taskDISABLE_INTERRUPTS();
+    {
+        while (ulBlockVariable == 0UL)
+        {
+            vTaskDelay( pdMS_TO_TICKS( ulLongSleep ) );
+        }
+    }
+    taskENABLE_INTERRUPTS();
 }
 /*-----------------------------------------------------------*/
 
@@ -334,7 +333,7 @@ void vAssertCalled(const char * pcFile,
     const char * pcApplicationHostnameHook(void)
     {
 
-        /* This function will be called during the DHCP: the machine will be registered 
+        /* This function will be called during the DHCP: the machine will be registered
          * with an IP address plus this name. */
         return clientcredentialIOT_THING_NAME;
     }
@@ -348,13 +347,13 @@ void vAssertCalled(const char * pcFile,
 
 static void prvSetupHardware( void )
 {
-	/* Ensure no interrupts execute while the scheduler is in an inconsistent
-	   state.  Interrupts are automatically enabled when the scheduler is
-	started. */
-	portDISABLE_INTERRUPTS();
+    /* Ensure no interrupts execute while the scheduler is in an inconsistent
+       state.  Interrupts are automatically enabled when the scheduler is
+    started. */
+    portDISABLE_INTERRUPTS();
 
-	/* Enable UART port to output messages. */
-	uart_init(DEV_UART2);
-	Init_PKCS11();
-	mbedtls_platform_set_nv_seed( &nv_seed_read_func, &nv_seed_write_func);
+    /* Enable UART port to output messages. */
+    uart_init(DEV_UART2);
+    Init_PKCS11();
+    mbedtls_platform_set_nv_seed( &nv_seed_read_func, &nv_seed_write_func);
 }

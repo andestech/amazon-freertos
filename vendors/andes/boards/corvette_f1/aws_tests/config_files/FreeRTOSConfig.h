@@ -141,9 +141,9 @@ in assembler files. */
 
 /* Normal assert() semantics without relying on the provision of an assert.h
 header file. */
-#define configASSERT( x )				if( ( x ) == 0 )  TEST_ABORT() 
+#define configASSERT( x )				if( ( x ) == 0 )  TEST_ABORT()
 //#define configASSERT( x )
-	
+
 #ifndef __ASSEMBLER__
 /* The function that implements FreeRTOS printf style output, and the macro
  * that maps the configPRINTF() macros to that function. */

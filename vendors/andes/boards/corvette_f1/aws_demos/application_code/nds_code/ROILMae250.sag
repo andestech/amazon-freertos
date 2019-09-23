@@ -32,7 +32,6 @@ MEM 0x80000000 ALIGN 256 0x00080000 ; max_size=512K
 		* (+ZI)
 		STACK = 0x00040000
 	}
-	
 }
 
 RO +0 ALIGN 512;

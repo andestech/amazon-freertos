@@ -89,7 +89,7 @@ set(
 
 target_link_options(
     AFR::compiler::mcu_port
-    INTERFACE 
+    INTERFACE
         $<$<COMPILE_LANGUAGE:C>:${linker_flags}>
 )
 
@@ -231,7 +231,7 @@ target_sources(
         "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/NetworkInterface/andes/NetworkInterface.c"
 )
 
-target_include_directories(                                                                                                                       
+target_include_directories(
     AFR::freertos_plus_tcp::mcu_port
     INTERFACE
         "${wifi_dir}/wilc1000/wireless_driver_extension"
@@ -280,7 +280,7 @@ else()
 endif()
 
 afr_glob_src(config_files DIRECTORY "${board_dir}/config_files")
-add_executable( 
+add_executable(
     ${exe_target}
     ${config_files}
     "${board_dir}/application_code/nds_code/ae250.ld"
