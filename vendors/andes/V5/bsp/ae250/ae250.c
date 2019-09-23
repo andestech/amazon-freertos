@@ -50,6 +50,9 @@ void system_init(void)
 	 * Do your system reset handling here
 	 */
 
+	/* Reset the CPU reset vector for this program. */
+	AE250_SMU->RESET_VECTOR = (unsigned int)(long)reset_vector;
+
 	/* Enable PLIC features */
 	if (read_csr(NDS_MMISC_CTL) & (1 << 1)) {
 		/* External PLIC interrupt is vectored */
@@ -61,16 +64,4 @@ void system_init(void)
 
 	/* Enable Misaligned access */
 	set_csr(NDS_MMISC_CTL, (1 << 6));
-#if 0
-#ifdef CFG_CACHE_ENABLE
-	/* Invalid ICache */
-	nds_icache_invalidate();
-
-	/* Invalid DCache */
-	nds_dcache_invalidate(); 
-
-	/* Enable I/D cache */
-	set_csr(NDS_MCACHE_CTL, (1 << 1) | 1);
-#endif
-#endif
 }

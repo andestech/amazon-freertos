@@ -26,7 +26,7 @@
 /* FreeRTOS includes. */
 #include "FreeRTOS.h"
 #include "task.h"
-#include "FreeRTOS_IP.h" /* FIX ME: Delete if you are not using the FreeRTOS-Plus-TCP library. */
+#include "FreeRTOS_IP.h"
 #include "FreeRTOS_Sockets.h"
 
 /* Platfrom includes. */
@@ -56,7 +56,7 @@
 #define mainLOGGING_WIFI_STATUS_DELAY			pdMS_TO_TICKS( 1000 )
 
 /* The name of the devices for xApplicationDNSQueryHook. */
-#define mainDEVICE_NICK_NAME				"Andes_demo" /* FIX ME.*/
+#define mainDEVICE_NICK_NAME				"Andes_demo"
 
 /* Static arrays for FreeRTOS-Plus-TCP stack initialization for Ethernet network
  * connections are declared below. If you are using an Ethernet connection on your MCU
@@ -158,9 +158,6 @@ int main( void )
                             tskIDLE_PRIORITY,
                             mainLOGGING_MESSAGE_QUEUE_LENGTH );
 
-    /* FIX ME: If you are using Ethernet network connections and the FreeRTOS+TCP stack,
-     * uncomment the initialization function, FreeRTOS_IPInit(), below. */
-
     FreeRTOS_IPInit( ucIPAddress,
                      ucNetMask,
                      ucGatewayAddress,
@@ -178,42 +175,8 @@ int main( void )
 
 static void prvMiscInitialization( void )
 {
-    /* FIX ME: Perform any hardware initializations, that don't require the RTOS to be 
-     * running, here.
-     */
     prvSetupHardware();
     configPRINT_STRING("Test Message");
-}
-/*-----------------------------------------------------------*/
-
-void vApplicationDaemonTaskStartupHook( void )
-{
-    /* FIX ME: Perform any hardware initialization, that require the RTOS to be
-     * running, here. */
-
-    #if 0
-    /* FIX ME: If your MCU is using Wi-Fi, delete surrounding compiler directives to
-     * enable the unit tests and after MQTT, Bufferpool, and Secure Sockets libraries
-     * have been imported into the project. If you are not using Wi-Fi, see the
-     * vApplicationIPNetworkEventHook function. */
-        if( SYSTEM_Init() == pdPASS )
-        {
-            /* Connect to the Wi-Fi before running the tests. */
-            prvWifiConnect();
-
-            /* Provision the device with AWS certificate and private key. */
-
-            vDevModeKeyProvisioning();
-
-            /* Create the task to run unit tests. */
-            xTaskCreate( TEST_RUNNER_RunTests_task,
-                         "RunTests_task",
-                         mainTEST_RUNNER_TASK_STACK_SIZE,
-                         NULL,
-                         tskIDLE_PRIORITY,
-                         NULL );
-        }
-    #endif
 }
 /*-----------------------------------------------------------*/
 
@@ -224,11 +187,7 @@ void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent )
     {
         configPRINT("Network connection successful.\n\r");
     }
-    /* FIX ME: If your application is using Ethernet network connections and the
-     * FreeRTOS+TCP stack, delete the surrounding compiler directives to enable the
-     * unit tests and after MQTT, Bufferpool, and Secure Sockets libraries have been
-     * imported into the project. If you are not using Ethernet see the
-     * vApplicationDaemonTaskStartupHook function. */
+
     uint32_t ulIPAddress, ulNetMask, ulGatewayAddress, ulDNSServerAddress;
     char cBuffer[ 16 ];
     static BaseType_t xTasksAlreadyCreated = pdFALSE;
@@ -272,93 +231,7 @@ void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent )
         FreeRTOS_inet_ntoa( ulDNSServerAddress, cBuffer );
         FreeRTOS_printf( ( "DNS Server Address: %s\r\n\r\n\r\n", cBuffer ) );
     }
-
-
-
-
-
-    #if 0
-    static BaseType_t xTasksAlreadyCreated = pdFALSE;
-
-    /* If the network has just come up...*/
-    if( eNetworkEvent == eNetworkUp )
-    {
-        if( ( xTasksAlreadyCreated == pdFALSE ) && ( SYSTEM_Init() == pdPASS ) )
-        {
-            xTaskCreate( TEST_RUNNER_RunTests_task,
-                         "TestRunner",
-                         TEST_RUNNER_TASK_STACK_SIZE,
-                         NULL,
-                         tskIDLE_PRIORITY, NULL );
-
-            xTasksAlreadyCreated = pdTRUE;
-        }
-    }
-    #endif /* if 0 */
 }
-/*-----------------------------------------------------------*/
-#if 0
-void prvWifiConnect( void )
-{
-    /* FIX ME: Delete surrounding compiler directives when the Wi-Fi library is ported. */
-        WIFINetworkParams_t xNetworkParams;
-        WIFIReturnCode_t xWifiStatus;
-        uint8_t ucTempIp[4] = { 0 };
-
-        xWifiStatus = WIFI_On();
-
-        if( xWifiStatus == eWiFiSuccess )
-        {
-            configPRINTF( ( "Wi-Fi module initialized. Connecting to AP...\r\n" ) );
-        }
-        else
-        {
-            configPRINTF( ( "Wi-Fi module failed to initialize.\r\n" ) );
-
-            /* Delay to allow the lower priority logging task to print the above status.
-             * The while loop below will block the above printing. */
-            vTaskDelay( mainLOGGING_WIFI_STATUS_DELAY );
-
-            while( 1 )
-            {
-            }
-        }
-
-        /* Setup parameters. */
-        xNetworkParams.pcSSID = clientcredentialWIFI_SSID;
-        xNetworkParams.ucSSIDLength = sizeof( clientcredentialWIFI_SSID );
-        xNetworkParams.pcPassword = clientcredentialWIFI_PASSWORD;
-        xNetworkParams.ucPasswordLength = sizeof( clientcredentialWIFI_PASSWORD );
-        xNetworkParams.xSecurity = clientcredentialWIFI_SECURITY;
-        xNetworkParams.cChannel = 0;
-
-        xWifiStatus = WIFI_ConnectAP( &( xNetworkParams ) );
-
-        if( xWifiStatus == eWiFiSuccess )
-        {
-            configPRINTF( ( "Wi-Fi Connected to AP. Creating tasks which use network...\r\n" ) );
-
-            xWifiStatus = WIFI_GetIP( ucTempIp );
-            if ( eWiFiSuccess == xWifiStatus )
-            {
-                configPRINTF( ( "IP Address acquired %d.%d.%d.%d\r\n",
-                                ucTempIp[ 0 ], ucTempIp[ 1 ], ucTempIp[ 2 ], ucTempIp[ 3 ] ) );
-            }
-        }
-        else
-        {
-            configPRINTF( ( "Wi-Fi failed to connect to AP.\r\n" ) );
-
-            /* Delay to allow the lower priority logging task to print the above status.
-             * The while loop below will block the above printing. */
-            vTaskDelay( mainLOGGING_WIFI_STATUS_DELAY );
-
-            while( 1 )
-            {
-            }
-        }
-}
-#endif
 /*-----------------------------------------------------------*/
 
 /**
@@ -368,7 +241,6 @@ void prvWifiConnect( void )
  */
 void vApplicationIdleHook( void )
 {
-    /* FIX ME. If necessary, update to application idle periodic actions. */
 
     static TickType_t xLastPrint = 0;
     TickType_t xTimeNow;
@@ -390,8 +262,6 @@ void vApplicationIdleHook( void )
 #if ( ipconfigUSE_LLMNR != 0 ) || ( ipconfigUSE_NBNS != 0 )
     BaseType_t xApplicationDNSQueryHook( const char * pcName )
     {
-        /* FIX ME. If necessary, update to applicable DNS name lookup actions. */
-
         BaseType_t xReturn;
 
         /* Determine if a name lookup is for this node.  Two names are given
@@ -423,8 +293,6 @@ void vApplicationIdleHook( void )
 void vAssertCalled(const char * pcFile,
 	uint32_t ulLine)
 {
-    /* FIX ME. If necessary, update to applicable assertion routine actions. */
-
 	const uint32_t ulLongSleep = 1000UL;
 	volatile uint32_t ulBlockVariable = 0UL;
 	volatile char * pcFileName = (volatile char *)pcFile;
@@ -455,7 +323,6 @@ void vAssertCalled(const char * pcFile,
 #if ( ipconfigUSE_LLMNR != 0 ) || ( ipconfigUSE_NBNS != 0 ) || ( ipconfigDHCP_REGISTER_HOSTNAME == 1 )
     const char * pcApplicationHostnameHook(void)
     {
-        /* FIX ME: If necessary, update to applicable registration name. */
 
         /* This function will be called during the DHCP: the machine will be registered 
          * with an IP address plus this name. */
