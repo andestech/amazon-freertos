@@ -1,0 +1,1 @@
+target_burn_frontend --erase-all --verify -P 4444 --unlock --image=/home/kevin/Amazon_FreeRTOS/20190606_AWSFreeRTOS/amazon-freertos/vendors/andes/boards/corvette_f1/aws_tests/aws_tests.bin --algorithm-bin=/home/kevin/build-flash/linux/target_bin/target_SPI_v5_32.bin

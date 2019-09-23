@@ -1,6 +1,6 @@
 set(
     AFR_MANIFEST_SUPPORTED_BOARDS
-    corvette_f1_ae250
+    corvette_f1
     CACHE INTERNAL "Supported boards list."
 )
 

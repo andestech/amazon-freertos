@@ -34,14 +34,15 @@
 #include "platform.h"
 #include "mbedtls/platform.h"
 
-/* Test includes */
-#include "aws_test_runner.h"
+/* Demo includes */
+#include "aws_demo.h"
 
 /* AWS library includes. */
 #include "aws_system_init.h"
 #include "aws_logging_task.h"
 #include "aws_wifi.h"
 #include "aws_clientcredential.h"
+#include "aws_application_version.h"
 #include "aws_dev_mode_key_provisioning.h"
 
 /* Logging Task Defines. */
@@ -68,7 +69,8 @@
  * to and from a real network connection on the host PC.  See the
  * configNETWORK_INTERFACE_TO_USE definition for information on how to configure
  * the real network connection to use. */
-const uint8_t ucMACAddress[ 6 ] =
+
+static uint8_t ucMACAddress[ 6 ] =
 {
     configMAC_ADDR0,
     configMAC_ADDR1,
@@ -128,11 +130,6 @@ void vApplicationDaemonTaskStartupHook( void );
 void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent );
 
 /**
- * @brief Connects to Wi-Fi.
- */
-//static void prvWifiConnect( void );
-
-/**
  * @brief Initializes the board.
  */
 static void prvMiscInitialization( void );
@@ -178,6 +175,15 @@ static void prvMiscInitialization( void )
     prvSetupHardware();
     configPRINT_STRING("Test Message");
 }
+
+/*-----------------------------------------------------------*/
+
+void vApplicationDaemonTaskStartupHook( void )
+{
+    /* FIX ME: Perform any hardware initialization, that require the RTOS to be
+     * running, here. */
+}
+
 /*-----------------------------------------------------------*/
 
 void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent )
@@ -202,12 +208,8 @@ void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent )
              * by production ready key provisioning mechanism. */
             vDevModeKeyProvisioning();
 
-            /* If the network has just come up...*/
-            xTaskCreate( TEST_RUNNER_RunTests_task,
-                         "TestRunner",
-                         mainTEST_RUNNER_TASK_STACK_SIZE,
-                         NULL,
-                         tskIDLE_PRIORITY, NULL );
+	    /* Start the demo tasks. */
+	    DEMO_RUNNER_RunDemos();
 
             xTasksAlreadyCreated = pdTRUE;
         }
@@ -317,21 +319,6 @@ void vAssertCalled(const char * pcFile,
 }
 /*-----------------------------------------------------------*/
 
-/**
- * @brief User defined application hook need by the FreeRTOS-Plus-TCP library.
- */
-#if ( ipconfigUSE_LLMNR != 0 ) || ( ipconfigUSE_NBNS != 0 ) || ( ipconfigDHCP_REGISTER_HOSTNAME == 1 )
-    const char * pcApplicationHostnameHook(void)
-    {
-
-        /* This function will be called during the DHCP: the machine will be registered 
-         * with an IP address plus this name. */
-        return clientcredentialIOT_THING_NAME;
-    }
-
-#endif
-
-/*-----------------------------------------------------------*/
 /*
  * Platform dependent function
  */

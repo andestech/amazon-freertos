@@ -19,7 +19,7 @@ endif()
 # -------------------------------------------------------------------------------------------------
 afr_set_board_metadata(ID "Andes_CF1")
 afr_set_board_metadata(DISPLAY_NAME "CF1")
-afr_set_board_metadata(DESCRIPTION "Development kit for corvette_f1_ae250")
+afr_set_board_metadata(DESCRIPTION "Development kit for corvette_f1")
 afr_set_board_metadata(VENDOR_NAME "Andes")
 afr_set_board_metadata(FAMILY_NAME "AE250")
 afr_set_board_metadata(DATA_RAM_MEMORY "200KB")

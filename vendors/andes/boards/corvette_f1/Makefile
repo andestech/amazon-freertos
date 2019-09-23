@@ -11,8 +11,8 @@ APP	?= TEST
 # Amazon FreeRTOS only support XIP mode
 MODE	= XIP
 
-# Platform: only use corvette_f1_ae250 in Amazon FreeRTOS
-PLAT    = corvette_f1_ae250
+# Platform: only use corvette_f1 in Amazon FreeRTOS
+PLAT    = corvette_f1
 MCU     = AE250
 MCUNAME = $(shell echo $(MCU) | tr A-Z a-z)
 
@@ -54,10 +54,10 @@ WIFI_DRI_DIR		= $(NDS_SOURCE_DIR)/wifi
 FREERTOS_SOURCE_DIR	= $(ROOT)/freertos_kernel
 TEST_APP_SOURCE_DIR	= $(ROOT)/tests/common
 DEMO_APP_SOURCE_DIR	= $(ROOT)/demos/common
-AWS_LIBPORT_DIR		= $(ROOT)/vendors/andes/boards/corvette_f1_ae250/ports
+AWS_LIBPORT_DIR		= $(ROOT)/vendors/andes/boards/$(PLAT)/ports
 
-AWS_TEST_DIR		= $(ROOT)/vendors/andes/boards/corvette_f1_ae250/aws_tests
-AWS_DEMO_DIR	        = $(ROOT)/vendors/andes/boards/corvette_f1_ae250/aws_demos
+AWS_TEST_DIR		= $(ROOT)/vendors/andes/boards/$(PLAT)/aws_tests
+AWS_DEMO_DIR	        = $(ROOT)/vendors/andes/boards/$(PLAT)/aws_demos
 
 FREERTOS_PLUS_DIR	= $(ROOT)/libraries/freertos_plus/standard/freertos_plus_tcp
 MBEDTLS_DIR		= $(ROOT)/libraries/3rdparty/mbedtls
@@ -378,7 +378,7 @@ endif
 
 all: $(PROG).elf
 
-$(PROG).elf  : $(OBJS) $(ROOT)/vendors/andes/boards/corvette_f1_ae250/Makefile
+$(PROG).elf  : $(OBJS) $(ROOT)/vendors/andes/boards/$(PLAT)/Makefile
 	$(TRACE_LD)
 	$(Q)$(CC) -o $@ $(LDFLAGS) $(OBJS) $(LIBS)
 	$(OBJCOPY) -O binary -S $(PROG).elf $(PROG).bin
