@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS BLE V1.0.0
+ * Amazon FreeRTOS BLE V2.0.0
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -35,7 +35,7 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "aws_wifi.h"
+#include "iot_wifi.h"
 
 
 BaseType_t test_HandleListNetworkRequest( uint8_t * pucData,
@@ -53,7 +53,8 @@ BaseType_t test_HandleDeleteNetworkRequest( uint8_t * pucData,
 
 WIFIReturnCode_t test_AppendNetwork( WIFINetworkProfile_t * pxProfile );
 
-WIFIReturnCode_t test_AddNewNetwork( WIFINetworkProfile_t * pxProfile );
+WIFIReturnCode_t test_AddNewNetwork( WIFINetworkProfile_t * pxProfile,
+                                     bool connect );
 
 WIFIReturnCode_t test_PopNetwork( uint16_t usIndex,
                                   WIFINetworkProfile_t * pxProfile );

@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V201906.00 Major
+ * Amazon FreeRTOS V201908.00
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -31,14 +31,14 @@
  *
  * @todo Set this to the fully-qualified DNS name of your MQTT broker.
  */
-#define clientcredentialMQTT_BROKER_ENDPOINT         "a11hx8q752ozrx-ats.iot.us-west-2.amazonaws.com"
+#define clientcredentialMQTT_BROKER_ENDPOINT         ""
 
 /*
  * @brief Host name.
  *
  * @todo Set this to the unique name of your IoT Thing.
  */
-#define clientcredentialIOT_THING_NAME               "NDS_CF1"
+#define clientcredentialIOT_THING_NAME               ""
 
 /*
  * @brief Port number the MQTT broker is using.
@@ -55,13 +55,13 @@
  *
  * @todo If you are using Wi-Fi, set this to your network name.
  */
-#define clientcredentialWIFI_SSID                    "KevinWang"
+#define clientcredentialWIFI_SSID                    ""
 
 /*
  * @brief Password needed to join Wi-Fi network.
  * @todo If you are using WPA, set this to your network password.
  */
-#define clientcredentialWIFI_PASSWORD                "kevin1234"
+#define clientcredentialWIFI_PASSWORD                ""
 
 /*
  * @brief Wi-Fi network security type.

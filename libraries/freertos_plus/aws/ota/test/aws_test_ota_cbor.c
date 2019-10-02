@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS OTA V1.0.2
+ * Amazon FreeRTOS OTA V1.0.3
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -33,10 +33,10 @@
 #include "FreeRTOS.h"
 
 /* MQTT include. */
-#include "aws_mqtt_agent.h"
+#include "iot_mqtt_agent.h"
 
 /* CBOR and OTA includes. */
-#include "aws_ota_agent.h"
+#include "aws_iot_ota_agent.h"
 #include "aws_ota_cbor.h"
 #include "aws_ota_cbor_internal.h"
 #include "aws_ota_agent_test_access_declare.h"
@@ -47,7 +47,7 @@
 #include "unity.h"
 
 /* Crypto includes. */
-#include "aws_crypto.h"
+#include "iot_crypto.h"
 #include "mbedTLS/sha1.h"
 
 /*-----------------------------------------------------------*/
@@ -528,7 +528,9 @@ TEST( Full_OTA_CBOR, CborOtaApi )
         OTA_FILE_BLOCK_SIZE,
         0,
         ( uint8_t * ) &ulBitmap,
-        sizeof( ulBitmap ) );
+        sizeof( ulBitmap ),
+        otaconfigMAX_NUM_BLOCKS_REQUEST );
+
     TEST_ASSERT_TRUE( xResult );
 
     prvSaveCborTestFile( "tempGetStreamRequest.cbor", ucCborWork, xEncodedSize );

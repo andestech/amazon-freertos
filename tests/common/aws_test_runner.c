@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V201906.00 Major
+ * Amazon FreeRTOS V201908.00
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -71,7 +71,7 @@ static void RunTests( void )
     #endif
 
     #if ( testrunnerFULL_TASKPOOL_ENABLED == 1 )
-            RUN_TEST_GROUP( Common_Unit_Task_Pool );
+        RUN_TEST_GROUP( Common_Unit_Task_Pool );
     #endif
 
     #if ( testrunnerFULL_WIFI_PROVISIONING_ENABLED == 1 )
@@ -105,6 +105,7 @@ static void RunTests( void )
         RUN_TEST_GROUP( MQTT_Unit_Subscription );
         RUN_TEST_GROUP( MQTT_Unit_Receive );
         RUN_TEST_GROUP( MQTT_Unit_API );
+        RUN_TEST_GROUP( MQTT_Unit_Metrics );
         RUN_TEST_GROUP( MQTT_System );
     #endif /* if ( testrunnerFULL_MQTTv4_ENABLED == 1 ) */
 
@@ -134,8 +135,11 @@ static void RunTests( void )
     #endif
 
     #if ( testrunnerFULL_PKCS11_ENABLED == 1 )
-        RUN_TEST_GROUP( Full_PKCS11_CryptoOperation );
-        RUN_TEST_GROUP( Full_PKCS11_GeneralPurpose );
+        RUN_TEST_GROUP( Full_PKCS11_StartFinish );
+        RUN_TEST_GROUP( Full_PKCS11_Capabilities );
+        RUN_TEST_GROUP( Full_PKCS11_NoObject );
+        RUN_TEST_GROUP( Full_PKCS11_RSA );
+        RUN_TEST_GROUP( Full_PKCS11_EC );
     #endif
 
     #if ( testrunnerFULL_CRYPTO_ENABLED == 1 )
@@ -144,7 +148,6 @@ static void RunTests( void )
 
     #if ( testrunnerFULL_TLS_ENABLED == 1 )
         RUN_TEST_GROUP( Full_TLS );
-        RUN_TEST_GROUP( Quarantine_TLS );
     #endif
 
     #if ( testrunnerFULL_DEFENDER_ENABLED == 1 )
@@ -175,6 +178,18 @@ static void RunTests( void )
         RUN_TEST_GROUP( Full_BLE );
     #endif
 
+    #if ( testrunnerFULL_BLE_STRESS_TEST_ENABLED == 1 )
+        RUN_TEST_GROUP( Full_BLE_Stress_Test );
+    #endif
+
+    #if ( testrunnerFULL_BLE_KPI_TEST_ENABLED == 1 )
+        RUN_TEST_GROUP( Full_BLE_KPI_Test );
+    #endif
+
+    #if ( testrunnerFULL_BLE_INTEGRATION_TEST_ENABLED == 1 )
+        RUN_TEST_GROUP( Full_BLE_Integration_Test );
+    #endif
+
     #if ( testrunnerFULL_BLE_END_TO_END_TEST_ENABLED == 1 )
         RUN_TEST_GROUP( Full_BLE_END_TO_END_MQTT );
         RUN_TEST_GROUP( Full_BLE_END_TO_END_SHADOW );
@@ -187,6 +202,15 @@ static void RunTests( void )
     #if ( testrunnerFULL_SERIALIZER_ENABLED == 1 )
         RUN_TEST_GROUP( Full_Serializer_CBOR );
         RUN_TEST_GROUP( Full_Serializer_JSON );
+        RUN_TEST_GROUP( Full_Serializer_JSON_deserialize );
+    #endif
+
+    #if ( testrunnerFULL_HTTPS_CLIENT_ENABLED == 1 )
+        RUN_TEST_GROUP( HTTPS_Client_Unit_API );
+        RUN_TEST_GROUP( HTTPS_Utils_Unit_API );
+        RUN_TEST_GROUP( HTTPS_Client_Unit_Sync );
+        RUN_TEST_GROUP( HTTPS_Client_Unit_Async );
+        RUN_TEST_GROUP( HTTPS_Client_System );
     #endif
 }
 /*-----------------------------------------------------------*/

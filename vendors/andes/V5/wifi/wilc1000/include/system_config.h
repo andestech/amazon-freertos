@@ -44,7 +44,7 @@ SOFTWARE
 // DOM-IGNORE-END
 
 
-#include "aws_wifi.h"
+#include "iot_wifi.h"
 #include "aws_clientcredential.h"
 
 #define WDRV_EXT_RTOS_TASK_SIZE (2048u)

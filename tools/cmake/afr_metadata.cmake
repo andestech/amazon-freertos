@@ -84,7 +84,12 @@ function(afr_set_metadata arg_metadata_type arg_metadata_name arg_metadata_val)
     set(metadata_file "${AFR_METADATA_OUTPUT_DIR}/console/${arg_metadata_type}.txt")
     if(AFR_METADATA_MODE)
         if("${cmake_file_name}" STREQUAL "CMakeLists.txt")
-            file(APPEND "${metadata_file}" "${cmake_file_dir}###${arg_metadata_name}:::${arg_metadata_val}\n")
+            if (NOT "${AFR_CURRENT_MODULE}" STREQUAL "")
+                string(REPLACE "demo_" "" AFR_CURRENT_MODULE "${AFR_CURRENT_MODULE}")
+                file(APPEND "${metadata_file}" "${AFR_CURRENT_MODULE}###${arg_metadata_name}:::${arg_metadata_val}\n")
+            else()
+                file(APPEND "${metadata_file}" "${cmake_file_dir}###${arg_metadata_name}:::${arg_metadata_val}\n")
+            endif()
         else()
             file(APPEND "${metadata_file}" "${cmake_file_name}###${arg_metadata_name}:::${arg_metadata_val}\n")
         endif()
@@ -297,6 +302,8 @@ function(afr_write_metadata)
         "${AFR_ROOT_DIR}/directories.txt"
         "${AFR_ROOT_DIR}/LICENSE"
         "${AFR_ROOT_DIR}/README.md"
+        "${AFR_ROOT_DIR}/CONTRIBUTING.md"
+        "${AFR_ROOT_DIR}/CODE_OF_CONDUCT.md"
         "${AFR_ROOT_DIR}/tools/certificate_configuration/PEMfileToCString.html"
         "${AFR_ROOT_DIR}/tools/certificate_configuration/CertificateConfigurator.html"
         "${AFR_ROOT_DIR}/tools/certificate_configuration/js/generator.js"

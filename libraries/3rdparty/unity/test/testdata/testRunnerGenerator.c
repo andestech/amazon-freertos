@@ -21,7 +21,10 @@
 
 /* Support for Meta Test Rig */
 #define TEST_CASE(a)
-void putcharSpy(int c) { (void)putchar(c);} // include passthrough for linking tests
+
+/* Include Passthroughs for Linking Tests */
+void putcharSpy(int c) { (void)putchar(c);}
+void flushSpy(void) {}
 
 /* Global Variables Used During These Tests */
 int CounterSetup = 0;
@@ -117,10 +120,13 @@ void test_NotBeConfusedByLongComplicatedStrings(void)
     TEST_ASSERT_EQUAL_STRING_MESSAGE(crazyString, crazyString, "These Strings Are The Same");
 }
 
+/* The next test should still appear even though we have this confusing nested comment thing going on http://looks_like_comments.com */
 void test_NotDisappearJustBecauseTheTestBeforeAndAfterHaveCrazyStrings(void)
 {
     TEST_ASSERT_TRUE_MESSAGE(1, "1 Should be True");
+    /* still should not break anything */
 }
+/* nor should this */
 
 void test_StillNotBeConfusedByLongComplicatedStrings(void)
 {

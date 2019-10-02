@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS BLE HAL V1.0.0
+ * Amazon FreeRTOS BLE HAL V2.0.0
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -119,6 +119,13 @@ typedef enum
     eBTPropertyBdaddr,
 
     /**
+     * Description - Device Type - BREDR, BLE or DUAL Mode
+     * Access mode - Only GET.
+     * Data type   - BTDeviceType_t.
+     */
+    eBTPropertyTypeOfDevice,
+
+    /**
      * Description - Bluetooth Service 128-bit UUIDs
      * Access mode - Only GET.
      * Data type   - Array of BTUuid_t (Array size inferred from property length).
@@ -131,13 +138,6 @@ typedef enum
      * Data type   - uint32_t.
      */
     eBTPropertyClassOfDevice,
-
-    /**
-     * Description - Device Type - BREDR, BLE or DUAL Mode
-     * Access mode - Only GET.
-     * Data type   - BTDeviceType_t.
-     */
-    eBTPropertyTypeOfDevice,
 
     /**
      * Description - Bluetooth Service Record
@@ -272,7 +272,7 @@ typedef struct
      *
      * @param property type
      * @return eBTStatusSuccess if the operation is successful, else error code.
-     * When property is read, it  will be retuned as part of
+     * When property is read, it  will be returned as part of
      * BTClassic_device_properties_callback()
      * @return eBTStatusSuccess if the operation is successful, else error code.
      */
@@ -291,7 +291,7 @@ typedef struct
      *
      * @param : BTbdaddr_t :BT Address of remote device
      * @return eBTStatusSuccess if the operation is successful, else error code.
-     * When properties are read, they will be retuned as part of
+     * When properties are read, they will be returned as part of
      * BTClassicRemoteDevicePropertiesCallback()
      */
     BTStatus_t ( * pxGetAllRemoteClassicDeviceProperties )( BTBdaddr_t * pxRemote_addr );
@@ -301,13 +301,13 @@ typedef struct
      * @param : BTbdaddr_t :BT Address of remote device
      * @param: type, Property type
      * @return eBTStatusSuccess if the operation is successful, else error code.
-     * When property is read, it  will be retuned as part of
+     * When property is read, it  will be returned as part of
      * BTClassicRemoteDevicePropertiesCallback()
      */
     BTStatus_t ( * pxGetRemoteClassicDeviceProperty )( BTBdaddr_t * pxRemote_addr,
                                                        BTClassicPropertyType_t xType );
 
-    /** Sets Bluetooth  property of 'type'.Based on the type, to a remote dsvice
+    /** Sets Bluetooth  property of 'type'.Based on the type, to a remote device
      * @param : BTbdaddr_t :BT Address of remote device
      * @param: property :  Property to be set on remote device
      * @return eBTStatusSuccess if the operation is successful, else error code.

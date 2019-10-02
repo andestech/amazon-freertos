@@ -63,19 +63,24 @@ def find_all_defines():
     proof_dir = os.path.abspath(os.path.join(PATCHES_DIR, "..", "proofs"))
 
     for fldr, _, fyles in os.walk(proof_dir):
-        if not "Makefile.json" in fyles:
+        if "Makefile.json" in fyles:
+            file = os.path.join(fldr, "Makefile.json")
+            key = "DEF"
+        elif "MakefileCommon.json" in fyles:
+            file = os.path.join(fldr, "MakefileCommon.json")
+            key = "DEF "
+        else:
             continue
-        file = os.path.join(fldr, "Makefile.json")
         with open(file, "r") as source:
             content = "".join([line for line in source
                                if line and not line.strip().startswith("#")])
             makefile = json.loads(content)
-            if "DEF" in makefile.keys():
+            if key in makefile.keys():
                 """This regex parses the define declaration in Makefile.json
                    'macro(x)=false' is an example for a declaration.
                    'macro' is expected to be matched.
                 """
-                for define in makefile["DEF"]:
+                for define in makefile[key]:
                     matched = DEFINE_REGEX_MAKEFILE.match(define)
                     if matched:
                         defines.add(matched.group(1))
@@ -93,11 +98,17 @@ def manipulate_headerfile(defines, header_file):
             if (match and
                     match.group(1) in defines and
                     not last.lstrip().startswith("#ifndef")):
+                full_def = line
+                # this loop deals with multiline definitions
+                while line.rstrip().endswith("\\"):
+                    line = next(source)
+                    full_def += line
+                # indentation for multiline definitions can be improved
                 modified_content += textwrap.dedent("""\
                     #ifndef {target}
                         {original}\
                     #endif
-                    """.format(target=match.group(1), original=line))
+                    """.format(target=match.group(1), original=full_def))
             else:
                 modified_content += line
             last = line
@@ -161,8 +172,9 @@ def create_patch(defines, header_file):
     header_path_part = header_file.replace(os.sep, "_")
     path_name = "auto_patch_" + header_path_part + ".patch"
     path_name = os.path.join(PATCHES_DIR, path_name)
-    with open(path_name, "w") as patch_file:
-        patch_file.write(patch.stdout)
+    if patch.stdout:
+        with open(path_name, "w") as patch_file:
+            patch_file.write(patch.stdout)
 
 
 def create_patches(headers):

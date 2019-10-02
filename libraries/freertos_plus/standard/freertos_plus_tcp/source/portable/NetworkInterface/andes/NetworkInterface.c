@@ -44,7 +44,7 @@
 #include "wilc1000_task.h"
 
 
-#include "aws_wifi.h"
+#include "iot_wifi.h"
 
     /* local definitions and data */
 

@@ -44,12 +44,6 @@ extern "C" {
  */
 
 /* Type definitions. */
-#define portCHAR		char
-#define portFLOAT		float
-#define portDOUBLE		double
-#define portLONG		long
-#define portSHORT		short
-
 #if __riscv_xlen == 64
 	#define portSTACK_TYPE			uint64_t
 	#define portBASE_TYPE			int64_t
@@ -60,8 +54,7 @@ extern "C" {
 	#define portSTACK_TYPE	uint32_t
 	#define portBASE_TYPE	int32_t
 	#define portUBASE_TYPE	uint32_t
-	#define portMAX_DELAY	( TickType_t ) 0xffffffffUL
-	#define portPOINTER_SIZE_TYPE	uint32_t
+	#define portMAX_DELAY ( TickType_t ) 0xffffffffUL
 #else
 	#error Assembler did not define __riscv_xlen
 #endif
@@ -84,7 +77,7 @@ not need to be guarded with a critical section. */
 	#error This is the RV32 port that has not yet been adapted for 64.
 	#define portBYTE_ALIGNMENT			16
 #else
-	#define portBYTE_ALIGNMENT 16
+	#define portBYTE_ALIGNMENT 8
 #endif
 /*-----------------------------------------------------------*/
 
