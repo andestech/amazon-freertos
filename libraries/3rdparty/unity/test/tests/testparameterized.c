@@ -8,12 +8,9 @@
 #include <stdio.h>
 #include "unity.h"
 
-/* Support for Meta Test Rig */
-#define TEST_CASE(...)
+void putcharSpy(int c) { (void)putchar(c);} // include passthrough for linking tests
 
-/* Include Passthroughs for Linking Tests */
-void putcharSpy(int c) { (void)putchar(c);}
-void flushSpy(void) {}
+#define TEST_CASE(...)
 
 #define EXPECT_ABORT_BEGIN \
     if (TEST_PROTECT())    \
@@ -46,14 +43,6 @@ void flushSpy(void) {}
 
 int SetToOneToFailInTearDown;
 int SetToOneMeanWeAlreadyCheckedThisGuy;
-static unsigned NextExpectedStringIndex;
-static unsigned NextExpectedCharIndex;
-
-void suiteSetUp(void)
-{
-    NextExpectedStringIndex = 0;
-    NextExpectedCharIndex = 0;
-}
 
 void setUp(void)
 {
@@ -119,56 +108,3 @@ void test_NormalFailsStillWork(void)
     TEST_ASSERT_TRUE(0);
     VERIFY_FAILS_END
 }
-
-TEST_CASE(0, "abc")
-TEST_CASE(1, "{")
-TEST_CASE(2, "}")
-TEST_CASE(3, ";")
-TEST_CASE(4, "\"quoted\"")
-void test_StringsArePreserved(unsigned index, const char * str)
-{
-    static const char * const expected[] = 
-    {
-        "abc",
-        "{",
-        "}",
-        ";",
-        "\"quoted\""
-    };
-
-    /* Ensure that no test cases are skipped by tracking the next expected index */
-    TEST_ASSERT_EQUAL_UINT32(NextExpectedStringIndex, index);
-    TEST_ASSERT_LESS_THAN(sizeof(expected) / sizeof(expected[0]), index);
-    TEST_ASSERT_EQUAL_STRING(expected[index], str);
-
-    NextExpectedStringIndex++;
-}
-
-TEST_CASE(0, 'x')
-TEST_CASE(1, '{')
-TEST_CASE(2, '}')
-TEST_CASE(3, ';')
-TEST_CASE(4, '\'')
-TEST_CASE(5, '"')
-void test_CharsArePreserved(unsigned index, char c)
-{
-    static const char expected[] =
-    {
-        'x',
-        '{',
-        '}',
-        ';',
-        '\'',
-        '"'
-    };
-
-    /* Ensure that no test cases are skipped by tracking the next expected index */
-    TEST_ASSERT_EQUAL_UINT32(NextExpectedCharIndex, index);
-    TEST_ASSERT_LESS_THAN(sizeof(expected) / sizeof(expected[0]), index);
-    TEST_ASSERT_EQUAL(expected[index], c);
-
-    NextExpectedCharIndex++;
-}
-
-
-

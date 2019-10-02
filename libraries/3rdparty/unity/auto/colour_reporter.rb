@@ -4,7 +4,7 @@
 #   [Released under MIT License. Please refer to license.txt for details]
 # ==========================================
 
-require_relative 'colour_prompt'
+require "#{File.expand_path(File.dirname(__FILE__))}/colour_prompt"
 
 $colour_output = true
 

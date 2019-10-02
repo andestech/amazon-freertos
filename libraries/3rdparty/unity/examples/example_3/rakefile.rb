@@ -1,9 +1,12 @@
+HERE = File.expand_path(File.dirname(__FILE__)) + '/'
+UNITY_ROOT = File.expand_path(File.dirname(__FILE__)) + '/../..'
+
 require 'rake'
 require 'rake/clean'
-require_relative 'rakefile_helper'
+require HERE + 'rakefile_helper'
 
 TEMP_DIRS = [
-  File.join(__dir__, 'build')
+  File.join(HERE, 'build')
 ].freeze
 
 TEMP_DIRS.each do |dir|
@@ -29,8 +32,8 @@ task :summary do
 end
 
 desc 'Build and test Unity'
-task all: %i[clean unit summary]
-task default: %i[clobber all]
+task all: %i(clean unit summary)
+task default: %i(clobber all)
 task ci: [:default]
 task cruise: [:default]
 

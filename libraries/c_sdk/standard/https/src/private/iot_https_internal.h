@@ -260,8 +260,7 @@
 /**
  * @brief The state of the HTTP response parsing.
  *
- * This state notes what has been parsed in the HTTP response. As soon as any part of the HTTP response is received from
- * the network, it is sent to be parsed.
+ * This state notes what has been parsed in the HTTP response.
  *
  * The states move as follows:
  * PARSER_STATE_NONE --> PARSER_STATE_IN_HEADERS --> PARSER_STATE_HEADERS_COMPLETE --> PARSER_STATE_BODY_COMPLETE
@@ -490,8 +489,6 @@ typedef struct _httpsRequest
 static const char * _pHttpsMethodStrings[] = {
     "GET",
     "HEAD",
-    "PUT",
-    "POST"
 };
 
 #endif /* IOT_HTTPS_INTERNAL_H_ */

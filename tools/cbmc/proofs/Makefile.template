@@ -34,7 +34,6 @@ CFLAGS = \
   $(CFLAGS2) \
   $(C_DEF) $(O_DEF) $(H_DEF) $(DEF) \
   $(C_OPT) $(O_OPT) $(H_OPT) $(OPT) \
-  -m32 \
   # empty
 
 CBMCFLAGS = \
@@ -73,10 +72,7 @@ unpatch:
 #
 # Rules for building the CBMC harness
 
-queue_datastructure.h: $(filter-out $(ENTRY)_harness.goto, $(OBJS))
-	python3 @TYPE_HEADER_SCRIPT@ $(FREERTOS)/freertos_kernel/queue.goto $(FREERTOS)/freertos_kernel/queue.c
-
-$(ENTRY)_harness.goto: $(ENTRY)_harness.c $(filter-out $(ENTRY)_harness.goto, $(OBJS)) $(H_GENERATE_HEADER)
+$(ENTRY)_harness.goto: $(ENTRY)_harness.c
 	$(GOTO_CC) @COMPILE_ONLY@ @RULE_OUTPUT@ $(INC) $(CFLAGS) @RULE_INPUT@
 
 $(ENTRY)1.goto: $(OBJS)
@@ -135,7 +131,7 @@ report: cbmc.txt property.xml coverage.xml
 	--srcdir $(FREERTOS) \
 	--blddir $(FREERTOS) \
 	--htmldir html \
-	--srcexclude "(./doc|./tests|./vendors)" \
+	--srcexclude "(./doc|./tests|./tools|./vendors)" \
 	--result cbmc.txt \
 	--property property.xml \
 	--block coverage.xml
@@ -150,7 +146,6 @@ clean:
 	@RM@ $(ENTRY)[0-9].goto $(ENTRY)[0-9].txt
 	@RM@ cbmc.txt property.xml coverage.xml TAGS
 	@RM@ *~ \#*
-	@RM@ queue_datastructure.h
 
 
 veryclean: clean

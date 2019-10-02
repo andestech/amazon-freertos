@@ -7,30 +7,19 @@ This is about how to use Doxygen to maintain the API documents. There are three 
 
 # Setup Doxygen
 
-[Doxygen Manual](http://www.doxygen.nl/manual/index.html)
+[Doxygen Manual](http://www.stack.nl/~dimitri/doxygen/manual/index.html)
 
 - download and install Doxygen
 - install graphviz
-	- on mac, run "brew install graphviz"
+	- on Mac, run `brew install graphviz`
+	- on Windows: https://graphviz.gitlab.io/_pages/Download/Download_windows.html
+		- Make sure that the directory location of "dot.exe" is added to the system PATH.
 - goto the root directory of "amazon-freertos" (this will be referenced as $ROOT_AFR_DIR)
-	- cd $ROOT_AFR_DIR
-- run Doxygen commands to generate the documents. Note: These files have circular dependencies so make sure to run each command twice.
-	- doxygen doc/config/linear_containers
-	- doxygen doc/config/static_memory
-	- doxygen doc/config/logging
-	- doxygen doc/config/secure_sockets
-	- doxygen doc/config/wifi
-	- doxygen doc/config/atomic
-	- doxygen doc/config/taskpool
-	- doxygen doc/config/platform
-	- doxygen doc/config/posix
-	- doxygen doc/config/mqtt
-	- doxygen doc/config/shadow
-	- doxygen doc/config/defender
-	- doxygen doc/config/ble
-	- doxygen doc/config/https
-	- doxygen doc/config/main
-- the entry doc is $ROOT_AFR_DIR/doc/output/main/index.html, open it with browser and verify it looks good
+	- `cd $ROOT_AFR_DIR`
+- run Doxygen command to generate the documents 
+	- `doxygen doc/config/main`
+	- `doxygen doc/config/secure_sockets`
+- the entry doc is $ROOT_AFR_DIR/doc/output/main/html, open it with browser and verify it looks good
 
 # Add documents for a new library
 
@@ -62,7 +51,7 @@ PROJECT_NAME = "Foo"
 HTML_OUTPUT = foo
 
 # Generate Doxygen tag file for this library.
-GENERATE_TAGFILE = doc/output/foo.tag
+GENERATE_TAGFILE = doc/tag/foo.tag
 
 # Directories containing library source code.
 INPUT = [The source files path]
@@ -73,7 +62,7 @@ FILE_PATTERNS = *.h *.c *.txt
 EXAMPLE_PATH = [The source files path]
 
 # External tag files required by this library.
-TAGFILES = doc/output/main.tag=../main \
+TAGFILES = doc/tag/main.tag=../main \
 ```
 
 ## 2. A separate file to structure the documents

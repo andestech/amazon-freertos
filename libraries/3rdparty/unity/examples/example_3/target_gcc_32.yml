@@ -1,9 +1,8 @@
 # Copied from ~Unity/targets/gcc_32.yml
 unity_root:  &unity_root '../..'
-unity_source: &unity_source '../../src/'
 compiler:
   path: gcc
-  source_path:     &source_path 'src/'
+  source_path:     'src/'
   unit_tests_path: &unit_tests_path 'test/'
   build_path:      &build_path 'build/'
   options:
@@ -16,8 +15,8 @@ compiler:
   includes:
     prefix: '-I'
     items:
-      - *source_path
-      - *unity_source
+      - 'src/'
+      - '../../src/'
       - *unit_tests_path
   defines:
     prefix: '-D'

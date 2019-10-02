@@ -1,8 +1,8 @@
 require 'yaml'
 require 'fileutils'
-require_relative '../../auto/unity_test_summary'
-require_relative '../../auto/generate_test_runner'
-require_relative '../../auto/colour_reporter'
+require UNITY_ROOT + '/auto/unity_test_summary'
+require UNITY_ROOT + '/auto/generate_test_runner'
+require UNITY_ROOT + '/auto/colour_reporter'
 
 module RakefileHelpers
   C_EXTENSION = '.c'.freeze
@@ -141,7 +141,7 @@ module RakefileHelpers
     report command_string
     output = `#{command_string}`.chomp
     report(output) if verbose && !output.nil? && !output.empty?
-    if !$?.nil? && !$?.exitstatus.zero? && raise_on_fail
+    if !$?.exitstatus.zero? && raise_on_fail
       raise "Command failed. (Returned #{$?.exitstatus})"
     end
     output
@@ -149,7 +149,7 @@ module RakefileHelpers
 
   def report_summary
     summary = UnityTestSummary.new
-    summary.root = __dir__
+    summary.root = HERE
     results_glob = "#{$cfg['compiler']['build_path']}*.test*"
     results_glob.tr!('\\', '/')
     results = Dir[results_glob]

@@ -54,10 +54,6 @@ void startPutcharSpy(void);
 void endPutcharSpy(void);
 char* getBufferPutcharSpy(void);
 
-void startFlushSpy(void);
-void endFlushSpy(void);
-int getFlushSpyCalls(void);
-
 static int SetToOneToFailInTearDown;
 static int SetToOneMeanWeAlreadyCheckedThisGuy;
 
@@ -103,10 +99,6 @@ void testUnitySizeInitializationReminder(void)
         UNITY_COUNTER_TYPE TestIgnores;
         UNITY_COUNTER_TYPE CurrentTestFailed;
         UNITY_COUNTER_TYPE CurrentTestIgnored;
-#ifdef UNITY_INCLUDE_EXEC_TIME
-        UNITY_TIME_TYPE CurrentTestStartTime;
-        UNITY_TIME_TYPE CurrentTestStopTime;
-#endif
 #ifndef UNITY_EXCLUDE_SETJMP_H
         jmp_buf AbortFrame;
 #endif
@@ -123,10 +115,6 @@ void testUnitySizeInitializationReminder(void)
         UNITY_COUNTER_TYPE TestIgnores;
         UNITY_COUNTER_TYPE CurrentTestFailed;
         UNITY_COUNTER_TYPE CurrentTestIgnored;
-#ifdef UNITY_INCLUDE_EXEC_TIME
-        UNITY_COUNTER_TYPE CurrentTestStartTime;
-        UNITY_COUNTER_TYPE CurrentTestStopTime;
-#endif
 #ifndef UNITY_EXCLUDE_SETJMP_H
         jmp_buf AbortFrame;
 #endif
@@ -145,28 +133,6 @@ void testPassShouldEndImmediatelyWithPass(void)
 {
     TEST_PASS();
     TEST_FAIL_MESSAGE("We should have passed already and finished this test");
-}
-
-void testPassShouldEndImmediatelyWithPassAndMessage(void)
-{
-    TEST_PASS_MESSAGE("Woohoo! This Automatically Passes!");
-    TEST_FAIL_MESSAGE("We should have passed already and finished this test");
-}
-
-void testMessageShouldDisplayMessageWithoutEndingAndGoOnToPass(void)
-{
-    TEST_MESSAGE("This is just a message");
-    TEST_MESSAGE("This is another message");
-    TEST_PASS();
-}
-
-void testMessageShouldDisplayMessageWithoutEndingAndGoOnToFail(void)
-{
-    TEST_MESSAGE("This is yet another message");
-
-    EXPECT_ABORT_BEGIN
-    TEST_FAIL();
-    VERIFY_FAILS_END
 }
 
 void testTrue(void)
@@ -1340,1475 +1306,8 @@ void testINT8sNotWithinDeltaAndCustomMessage(void)
     VERIFY_FAILS_END
 }
 
-//------------------------
-
-void testInt64ArrayWithinDelta(void)
-{
-#ifndef UNITY_SUPPORT_64
-    TEST_IGNORE();
-#else
-    UNITY_INT64 expected[] = {12345000, -12344995, 12345005};
-    UNITY_INT64 acutalSmallDelta[] = {12345001, -12344996, 12345005};
-    UNITY_INT64 acutalBigDelta[] = {12345101, -12344896, 12345055};
-
-    TEST_ASSERT_INT64_ARRAY_WITHIN(1, expected, acutalSmallDelta, 3);
-    TEST_ASSERT_INT64_ARRAY_WITHIN(110, expected, acutalBigDelta, 3);
-#endif
-}
-
-void testInt64ArrayWithinDeltaAndMessage(void)
-{
-#ifndef UNITY_SUPPORT_64
-    TEST_IGNORE();
-#else
-    UNITY_INT64 expected[] = {12345000, -12344995, 12345005};
-    UNITY_INT64 acutalSmallDelta[] = {12345001, -12344996, 12345005};
-    UNITY_INT64 acutalBigDelta[] = {12345101, -12344896, 12345055};
-
-    TEST_ASSERT_INT64_ARRAY_WITHIN_MESSAGE(1, expected, acutalSmallDelta, 3, "Custom Message.");
-    TEST_ASSERT_INT64_ARRAY_WITHIN_MESSAGE(110, expected, acutalBigDelta, 3, "Custom Message.");
-#endif
-}
-
-void tesUInt64ArrayNotWithinDelta(void)
-{
-#ifndef UNITY_SUPPORT_64
-    TEST_IGNORE();
-#else
-    UNITY_INT64 expected[] = {12345000, -12344995, 12345005};
-    UNITY_INT64 acutalBigDelta[] = {12345101, -12344896, 12345055};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_UINT64_ARRAY_WITHIN(1, expected, acutalBigDelta, 3);
-    VERIFY_FAILS_END
-#endif
-}
-
-void testInt64ArrayNotWithinDeltaAndMessage(void)
-{
-#ifndef UNITY_SUPPORT_64
-    TEST_IGNORE();
-#else
-    UNITY_INT64 expected[] = {12345000, -12344995, 12345005};
-    UNITY_INT64 acutalBigDelta[] = {12345101, -12344896, 12345055};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_INT64_ARRAY_WITHIN_MESSAGE(1, expected, acutalBigDelta, 3, "Custom Message.");
-    VERIFY_FAILS_END
-#endif
-}
-
-void testInt64ArrayWithinDeltaPointless(void)
-{
-#ifndef UNITY_SUPPORT_64
-    TEST_IGNORE();
-#else
-    UNITY_INT64 expected[] = {12345000, -12344995, 12345005};
-    UNITY_INT64 acutalBigDelta[] = {12345101, -12344896, 12345055};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_INT64_ARRAY_WITHIN(110, expected, acutalBigDelta, 0);
-    VERIFY_FAILS_END
-#endif
-}
-
-void testInt64ArrayWithinDeltaPointlessAndMessage(void)
-{
-#ifndef UNITY_SUPPORT_64
-    TEST_IGNORE();
-#else
-    UNITY_INT64 expected[] = {12345000, -12344995, 12345005};
-    UNITY_INT64 acutalBigDelta[] = {12345101, -12344896, 12345055};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_INT64_ARRAY_WITHIN_MESSAGE(110, expected, acutalBigDelta, 0, "Custom Message.");
-    VERIFY_FAILS_END
-#endif
-}
-
-void testInt64ArrayWithinDeltaExpectedNull(void)
-{
-#ifndef UNITY_SUPPORT_64
-    TEST_IGNORE();
-#else
-    UNITY_INT64 acutalBigDelta[] = {12345101, -12344896, 12345055};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_INT64_ARRAY_WITHIN(110, NULL, acutalBigDelta, 3);
-    VERIFY_FAILS_END
-#endif
-}
-
-void testInt64ArrayWithinDeltaExpectedNullAndMessage(void)
-{
-#ifndef UNITY_SUPPORT_64
-    TEST_IGNORE();
-#else
-    UNITY_INT64 acutalBigDelta[] = {12345101, -12344896, 12345055};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_INT64_ARRAY_WITHIN_MESSAGE(110, NULL, acutalBigDelta, 3, "Custom Message.");
-    VERIFY_FAILS_END
-#endif
-}
-
-void testInt64ArrayWithinDeltaActualNull(void)
-{
-#ifndef UNITY_SUPPORT_64
-    TEST_IGNORE();
-#else
-    UNITY_INT64 expected[] = {12345000, -12344995, 12345005};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_INT64_ARRAY_WITHIN(110, expected, NULL, 3);
-    VERIFY_FAILS_END
-#endif
-}
-
-void testInt64ArrayWithinDeltaActualNullAndMessage(void)
-{
-#ifndef UNITY_SUPPORT_64
-    TEST_IGNORE();
-#else
-    UNITY_INT64 expected[] = {12345000, -12344995, 12345005};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_INT64_ARRAY_WITHIN_MESSAGE(110, expected, NULL, 3, "Custom Message.");
-    VERIFY_FAILS_END
-#endif
-}
-
-void testInt64ArrayWithinDeltaSamePointer(void)
-{
-#ifndef UNITY_SUPPORT_64
-    TEST_IGNORE();
-#else
-    UNITY_INT64 expected[] = {12345000, -12344995, 12345005};
-
-    TEST_ASSERT_UINT64_ARRAY_WITHIN(110, expected, expected, 3);
-#endif
-}
-
-void testInt64ArrayWithinDeltaSamePointerAndMessage(void)
-{
-#ifndef UNITY_SUPPORT_64
-    TEST_IGNORE();
-#else
-    UNITY_INT64 expected[] = {12345000, -12344995, 12345005};
-
-    TEST_ASSERT_INT64_ARRAY_WITHIN_MESSAGE(110, expected, expected, 3, "Custom Message.");
-#endif
-}
-
-void testIntArrayWithinDelta(void)
-{
-    UNITY_INT expected[] = {5000, -4995, 5005};
-    UNITY_INT acutalSmallDelta[] = {5001, -4996, 5005};
-    UNITY_INT acutalBigDelta[] = {5101, -4896, 5055};
-
-    TEST_ASSERT_INT_ARRAY_WITHIN(1, expected, acutalSmallDelta, 3);
-    TEST_ASSERT_INT_ARRAY_WITHIN(110, expected, acutalBigDelta, 3);
-}
-
-void testIntArrayWithinDeltaAndMessage(void)
-{
-    UNITY_INT expected[] = {5000, -4995, 5005};
-    UNITY_INT acutalSmallDelta[] = {5001, -4996, 5005};
-    UNITY_INT acutalBigDelta[] = {5101, -4896, 5055};
-
-    TEST_ASSERT_INT_ARRAY_WITHIN_MESSAGE(1, expected, acutalSmallDelta, 3, "Custom Message.");
-    TEST_ASSERT_INT_ARRAY_WITHIN_MESSAGE(110, expected, acutalBigDelta, 3, "Custom Message.");
-}
-
-void testIntArrayNotWithinDelta(void)
-{
-    UNITY_INT expected[] = {5000, -4995, 5005};
-    UNITY_INT acutalBigDelta[] = {5101, -4896, 5055};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_INT_ARRAY_WITHIN(1, expected, acutalBigDelta, 3);
-    VERIFY_FAILS_END
-}
-
-void testIntArrayNotWithinDeltaAndMessage(void)
-{
-    UNITY_INT expected[] = {5000, -4995, 5005};
-    UNITY_INT acutalBigDelta[] = {5101, -4896, 5055};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_INT_ARRAY_WITHIN_MESSAGE(1, expected, acutalBigDelta, 3, "Custom Message.");
-    VERIFY_FAILS_END
-}
-
-void testIntArrayWithinDeltaPointless(void)
-{
-    UNITY_INT expected[] = {5000, -4995, 5005};
-    UNITY_INT acutalBigDelta[] = {5101, -4896, 5055};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_INT_ARRAY_WITHIN(110, expected, acutalBigDelta, 0);
-    VERIFY_FAILS_END
-}
-
-void testIntArrayWithinDeltaPointlessAndMessage(void)
-{
-    UNITY_INT expected[] = {5000, -4995, 5005};
-    UNITY_INT acutalBigDelta[] = {5101, -4896, 5055};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_INT_ARRAY_WITHIN_MESSAGE(110, expected, acutalBigDelta, 0, "Custom Message.");
-    VERIFY_FAILS_END
-}
-
-void testIntArrayWithinDeltaExpectedNull(void)
-{
-    UNITY_INT acutalBigDelta[] = {5101, -4896, 5055};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_INT_ARRAY_WITHIN(110, NULL, acutalBigDelta, 3);
-    VERIFY_FAILS_END
-}
-
-void testIntArrayWithinDeltaExpectedNullAndMessage(void)
-{
-    UNITY_INT acutalBigDelta[] = {5101, -4896, 5055};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_INT_ARRAY_WITHIN_MESSAGE(110, NULL, acutalBigDelta, 3, "Custom Message.");
-    VERIFY_FAILS_END
-}
-
-void testIntArrayWithinDeltaActualNull(void)
-{
-    UNITY_INT expected[] = {5000, -4995, 5005};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_INT_ARRAY_WITHIN(110, expected, NULL, 3);
-    VERIFY_FAILS_END
-}
-
-void testIntArrayWithinDeltaActualNullAndMessage(void)
-{
-    UNITY_INT expected[] = {5000, -4995, 5005};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_INT_ARRAY_WITHIN_MESSAGE(110, expected, NULL, 3, "Custom Message.");
-    VERIFY_FAILS_END
-}
-
-void testIntArrayWithinDeltaSamePointer(void)
-{
-    UNITY_INT expected[] = {5000, -4995, 5005};
-
-    TEST_ASSERT_INT_ARRAY_WITHIN(110, expected, expected, 3);
-}
-
-void testIntArrayWithinDeltaSamePointerAndMessage(void)
-{
-    UNITY_INT expected[] = {5000, -4995, 5005};
-
-    TEST_ASSERT_INT_ARRAY_WITHIN_MESSAGE(110, expected, expected, 3, "Custom Message.");
-}
-
-void testInt16ArrayWithinDelta(void)
-{
-    UNITY_INT16 expected[] = {5000, -4995, 5005};
-    UNITY_INT16 acutalSmallDelta[] = {5001, -4996, 5005};
-    UNITY_INT16 acutalBigDelta[] = {5101, -4896, 5055};
-
-    TEST_ASSERT_INT16_ARRAY_WITHIN(1, expected, acutalSmallDelta, 3);
-    TEST_ASSERT_INT16_ARRAY_WITHIN(110, expected, acutalBigDelta, 3);
-}
-
-void testInt16ArrayWithinDeltaAndMessage(void)
-{
-    UNITY_INT16 expected[] = {5000, -4995, 5005};
-    UNITY_INT16 acutalSmallDelta[] = {5001, -4996, 5005};
-    UNITY_INT16 acutalBigDelta[] = {5101, -4896, 5055};
-
-    TEST_ASSERT_INT16_ARRAY_WITHIN_MESSAGE(1, expected, acutalSmallDelta, 3, "Custom Message.");
-    TEST_ASSERT_INT16_ARRAY_WITHIN_MESSAGE(110, expected, acutalBigDelta, 3, "Custom Message.");
-}
-
-void testInt16ArrayNotWithinDelta(void)
-{
-    UNITY_INT16 expected[] = {5000, -4995, 5005};
-    UNITY_INT16 acutalBigDelta[] = {5101, -4896, 5055};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_UINT16_ARRAY_WITHIN(1, expected, acutalBigDelta, 3);
-    VERIFY_FAILS_END
-}
-
-void testInt16ArrayNotWithinDeltaAndMessage(void)
-{
-    UNITY_INT16 expected[] = {5000, -4995, 5005};
-    UNITY_INT16 acutalBigDelta[] = {5101, -4896, 5055};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_INT16_ARRAY_WITHIN_MESSAGE(1, expected, acutalBigDelta, 3, "Custom Message.");
-    VERIFY_FAILS_END
-}
-
-void testInt16ArrayWithinDeltaPointless(void)
-{
-    UNITY_INT16 expected[] = {5000, -4995, 5005};
-    UNITY_INT16 acutalBigDelta[] = {5101, -4896, 5055};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_INT16_ARRAY_WITHIN(110, expected, acutalBigDelta, 0);
-    VERIFY_FAILS_END
-}
-
-void testInt16ArrayWithinDeltaPointlessAndMessage(void)
-{
-    UNITY_INT16 expected[] = {5000, -4995, 5005};
-    UNITY_INT16 acutalBigDelta[] = {5101, -4896, 5055};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_INT16_ARRAY_WITHIN_MESSAGE(110, expected, acutalBigDelta, 0, "Custom Message.");
-    VERIFY_FAILS_END
-}
-
-void testInt16ArrayWithinDeltaExpectedNull(void)
-{
-    UNITY_INT16 acutalBigDelta[] = {5101, -4896, 5055};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_INT16_ARRAY_WITHIN(110, NULL, acutalBigDelta, 3);
-    VERIFY_FAILS_END
-}
-
-void testInt16ArrayWithinDeltaExpectedNullAndMessage(void)
-{
-    UNITY_INT16 acutalBigDelta[] = {5101, -4896, 5055};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_INT16_ARRAY_WITHIN_MESSAGE(110, NULL, acutalBigDelta, 3, "Custom Message.");
-    VERIFY_FAILS_END
-}
-
-void testInt16ArrayWithinDeltaActualNull(void)
-{
-    UNITY_INT16 expected[] = {5000, -4995, 5005};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_INT16_ARRAY_WITHIN(110, expected, NULL, 3);
-    VERIFY_FAILS_END
-}
-
-void testInt16ArrayWithinDeltaActualNullAndMessage(void)
-{
-    UNITY_INT16 expected[] = {5000, -4995, 5005};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_INT16_ARRAY_WITHIN_MESSAGE(110, expected, NULL, 3, "Custom Message.");
-    VERIFY_FAILS_END
-}
-
-void testInt16ArrayWithinDeltaSamePointer(void)
-{
-    UNITY_INT16 expected[] = {5000, -4995, 5005};
-
-    TEST_ASSERT_INT16_ARRAY_WITHIN(110, expected, expected, 3);
-}
-
-void testInt16ArrayWithinDeltaSamePointerAndMessage(void)
-{
-    UNITY_INT16 expected[] = {5000, -4995, 5005};
-
-    TEST_ASSERT_INT16_ARRAY_WITHIN_MESSAGE(110, expected, expected, 3, "Custom Message.");
-}
-
-void testInt8ArrayWithinDelta(void)
-{
-    UNITY_INT8 expected[] = {20, -95, 55};
-    UNITY_INT8 acutalSmallDelta[] = {21, -94, 55};
-    UNITY_INT8 acutalBigDelta[] = {11, -86, 45};
-
-    TEST_ASSERT_INT8_ARRAY_WITHIN(1, expected, acutalSmallDelta, 3);
-    TEST_ASSERT_INT8_ARRAY_WITHIN(11, expected, acutalBigDelta, 3);
-}
-
-void testInt8ArrayWithinDeltaAndMessage(void)
-{
-    UNITY_INT8 expected[] = {20, -95, 55};
-    UNITY_INT8 acutalSmallDelta[] = {21, -94, 55};
-    UNITY_INT8 acutalBigDelta[] = {11, -86, 45};
-
-    TEST_ASSERT_INT8_ARRAY_WITHIN_MESSAGE(1, expected, acutalSmallDelta, 3, "Custom Message.");
-    TEST_ASSERT_INT8_ARRAY_WITHIN_MESSAGE(11, expected, acutalBigDelta, 3, "Custom Message.");
-}
-
-void testInt8ArrayNotWithinDelta(void)
-{
-    UNITY_INT8 expected[] = {20, -95, 55};
-    UNITY_INT8 acutalBigDelta[] = {11, -86, 45};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_INT8_ARRAY_WITHIN(1, expected, acutalBigDelta, 3);
-    VERIFY_FAILS_END
-}
-
-void testInt8ArrayNotWithinDeltaAndMessage(void)
-{
-    UNITY_INT8 expected[] = {20, -95, 55};
-    UNITY_INT8 acutalBigDelta[] = {11, -86, 45};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_INT8_ARRAY_WITHIN_MESSAGE(1, expected, acutalBigDelta, 3, "Custom Message.");
-    VERIFY_FAILS_END
-}
-
-void testInt8ArrayWithinDeltaPointless(void)
-{
-    UNITY_INT8 expected[] = {20, -95, 55};
-    UNITY_INT8 acutalBigDelta[] = {11, -86, 45};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_INT8_ARRAY_WITHIN(11, expected, acutalBigDelta, 0);
-    VERIFY_FAILS_END
-}
-
-void testInt8ArrayWithinDeltaPointlessAndMessage(void)
-{
-    UNITY_INT8 expected[] = {20, -95, 55};
-    UNITY_INT8 acutalBigDelta[] = {11, -86, 45};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_INT8_ARRAY_WITHIN_MESSAGE(11, expected, acutalBigDelta, 0, "Custom Message.");
-    VERIFY_FAILS_END
-}
-
-void testInt8ArrayWithinDeltaExpectedNull(void)
-{
-    UNITY_INT8 acutalBigDelta[] = {11, -86, 45};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_INT8_ARRAY_WITHIN(11, NULL, acutalBigDelta, 3);
-    VERIFY_FAILS_END
-}
-
-void testInt8ArrayWithinDeltaExpectedNullAndMessage(void)
-{
-    UNITY_INT8 acutalBigDelta[] = {11, -86, 45};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_INT8_ARRAY_WITHIN_MESSAGE(11, NULL, acutalBigDelta, 3, "Custom Message.");
-    VERIFY_FAILS_END
-}
-
-void testInt8ArrayWithinDeltaActualNull(void)
-{
-    UNITY_INT8 expected[] = {20, -95, 55};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_INT8_ARRAY_WITHIN(11, expected, NULL, 3);
-    VERIFY_FAILS_END
-}
-
-void testInt8ArrayWithinDeltaActualNullAndMessage(void)
-{
-    UNITY_INT8 expected[] = {20, -95, 55};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_INT8_ARRAY_WITHIN_MESSAGE(11, expected, NULL, 3, "Custom Message.");
-    VERIFY_FAILS_END
-}
-
-void testInt8ArrayWithinDeltaSamePointer(void)
-{
-    UNITY_INT8 expected[] = {20, -95, 55};
-
-    TEST_ASSERT_INT8_ARRAY_WITHIN(11, expected, expected, 3);
-}
-
-void testInt8ArrayWithinDeltaSamePointerAndMessage(void)
-{
-    UNITY_INT8 expected[] = {20, -95, 55};
-
-    TEST_ASSERT_INT8_ARRAY_WITHIN_MESSAGE(11, expected, expected, 3, "Custom Message.");
-}
-
-void testUInt64ArrayWithinDelta(void)
-{
-#ifndef UNITY_SUPPORT_64
-    TEST_IGNORE();
-#else
-    UNITY_UINT64 expected[] = {12345000, 12344995, 12345005};
-    UNITY_UINT64 acutalSmallDelta[] = {12345001, 12344996, 12345005};
-    UNITY_UINT64 acutalBigDelta[] = {12345101, 12344896, 12345055};
-
-    TEST_ASSERT_UINT64_ARRAY_WITHIN(1, expected, acutalSmallDelta, 3);
-    TEST_ASSERT_UINT64_ARRAY_WITHIN(110, expected, acutalBigDelta, 3);
-#endif
-}
-
-void testUInt64ArrayWithinDeltaAndMessage(void)
-{
-#ifndef UNITY_SUPPORT_64
-    TEST_IGNORE();
-#else
-    UNITY_UINT64 expected[] = {12345000, 12344995, 12345005};
-    UNITY_UINT64 acutalSmallDelta[] = {12345001, 12344996, 12345005};
-    UNITY_UINT64 acutalBigDelta[] = {12345101, 12344896, 12345055};
-
-    TEST_ASSERT_UINT64_ARRAY_WITHIN_MESSAGE(1, expected, acutalSmallDelta, 3, "Custom Message.");
-    TEST_ASSERT_UINT64_ARRAY_WITHIN_MESSAGE(110, expected, acutalBigDelta, 3, "Custom Message.");
-#endif
-}
-
-void testUInt64ArrayNotWithinDelta(void)
-{
-#ifndef UNITY_SUPPORT_64
-    TEST_IGNORE();
-#else
-    UNITY_UINT64 expected[] = {12345000, 12344995, 12345005};
-    UNITY_UINT64 acutalBigDelta[] = {12345101, 12344896, 12345055};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_UINT64_ARRAY_WITHIN(1, expected, acutalBigDelta, 3);
-    VERIFY_FAILS_END
-#endif
-}
-
-void testUInt64ArrayNotWithinDeltaAndMessage(void)
-{
-#ifndef UNITY_SUPPORT_64
-    TEST_IGNORE();
-#else
-    UNITY_UINT64 expected[] = {12345000, 12344995, 12345005};
-    UNITY_UINT64 acutalBigDelta[] = {12345101, 12344896, 12345055};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_UINT64_ARRAY_WITHIN_MESSAGE(1, expected, acutalBigDelta, 3, "Custom Message.");
-    VERIFY_FAILS_END
-#endif
-}
-
-void testUInt64ArrayWithinDeltaPointless(void)
-{
-#ifndef UNITY_SUPPORT_64
-    TEST_IGNORE();
-#else
-    UNITY_UINT64 expected[] = {12345000, 12344995, 12345005};
-    UNITY_UINT64 acutalBigDelta[] = {12345101, 12344896, 12345055};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_UINT64_ARRAY_WITHIN(110, expected, acutalBigDelta, 0);
-    VERIFY_FAILS_END
-#endif
-}
-
-void testUInt64ArrayWithinDeltaPointlessAndMessage(void)
-{
-#ifndef UNITY_SUPPORT_64
-    TEST_IGNORE();
-#else
-    UNITY_UINT64 expected[] = {12345000, 12344995, 12345005};
-    UNITY_UINT64 acutalBigDelta[] = {12345101, 12344896, 12345055};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_UINT64_ARRAY_WITHIN_MESSAGE(110, expected, acutalBigDelta, 0, "Custom Message.");
-    VERIFY_FAILS_END
-#endif
-}
-
-void testUInt64ArrayWithinDeltaExpectedNull(void)
-{
-#ifndef UNITY_SUPPORT_64
-    TEST_IGNORE();
-#else
-    UNITY_UINT64 acutalBigDelta[] = {12345101, 12344896, 12345055};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_UINT64_ARRAY_WITHIN(110, NULL, acutalBigDelta, 3);
-    VERIFY_FAILS_END
-#endif
-}
-
-void testUInt64ArrayWithinDeltaExpectedNullAndMessage(void)
-{
-#ifndef UNITY_SUPPORT_64
-    TEST_IGNORE();
-#else
-    UNITY_UINT64 acutalBigDelta[] = {12345101, 12344896, 12345055};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_UINT64_ARRAY_WITHIN_MESSAGE(110, NULL, acutalBigDelta, 3, "Custom Message.");
-    VERIFY_FAILS_END
-#endif
-}
-
-void testUInt64ArrayWithinDeltaActualNull(void)
-{
-#ifndef UNITY_SUPPORT_64
-    TEST_IGNORE();
-#else
-    UNITY_UINT64 expected[] = {12345000, 12344995, 12345005};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_UINT64_ARRAY_WITHIN(110, expected, NULL, 3);
-    VERIFY_FAILS_END
-#endif
-}
-
-void testUInt64ArrayWithinDeltaActualNullAndMessage(void)
-{
-#ifndef UNITY_SUPPORT_64
-    TEST_IGNORE();
-#else
-    UNITY_UINT64 expected[] = {12345000, 12344995, 12345005};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_UINT64_ARRAY_WITHIN_MESSAGE(110, expected, NULL, 3, "Custom Message.");
-    VERIFY_FAILS_END
-#endif
-}
-
-void testUInt64ArrayWithinDeltaSamePointer(void)
-{
-#ifndef UNITY_SUPPORT_64
-    TEST_IGNORE();
-#else
-    UNITY_UINT64 expected[] = {12345000, 12344995, 12345005};
-
-    TEST_ASSERT_UINT64_ARRAY_WITHIN(110, expected, expected, 3);
-#endif
-}
-
-void testUInt64ArrayWithinDeltaSamePointerAndMessage(void)
-{
-#ifndef UNITY_SUPPORT_64
-    TEST_IGNORE();
-#else
-    UNITY_UINT64 expected[] = {12345000, 12344995, 12345005};
-
-    TEST_ASSERT_UINT64_ARRAY_WITHIN_MESSAGE(110, expected, expected, 3, "Custom Message.");
-#endif
-}
-
-void testUIntArrayWithinDelta(void)
-{
-    UNITY_UINT expected[] = {125000, 124995, 125005};
-    UNITY_UINT acutalSmallDelta[] = {125001, 124996, 125005};
-    UNITY_UINT acutalBigDelta[] = {125101, 124896, 125055};
-
-    TEST_ASSERT_UINT_ARRAY_WITHIN(1, expected, acutalSmallDelta, 3);
-    TEST_ASSERT_UINT_ARRAY_WITHIN(110, expected, acutalBigDelta, 3);
-}
-
-void testUIntArrayWithinDeltaAndMessage(void)
-{
-    UNITY_UINT expected[] = {125000, 124995, 125005};
-    UNITY_UINT acutalSmallDelta[] = {125001, 124996, 125005};
-    UNITY_UINT acutalBigDelta[] = {125101, 124896, 125055};
-
-    TEST_ASSERT_UINT_ARRAY_WITHIN_MESSAGE(1, expected, acutalSmallDelta, 3, "Custom Message.");
-    TEST_ASSERT_UINT_ARRAY_WITHIN_MESSAGE(110, expected, acutalBigDelta, 3, "Custom Message.");
-}
-
-void testUIntArrayNotWithinDelta(void)
-{
-    UNITY_UINT expected[] = {125000, 124995, 125005};
-    UNITY_UINT acutalBigDelta[] = {125101, 124896, 125055};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_UINT_ARRAY_WITHIN(1, expected, acutalBigDelta, 3);
-    VERIFY_FAILS_END
-}
-
-void testUIntArrayNotWithinDeltaAndMessage(void)
-{
-    UNITY_UINT expected[] = {125000, 124995, 125005};
-    UNITY_UINT acutalBigDelta[] = {125101, 124896, 125055};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_UINT_ARRAY_WITHIN_MESSAGE(1, expected, acutalBigDelta, 3, "Custom Message.");
-    VERIFY_FAILS_END
-}
-
-void testUIntArrayWithinDeltaPointless(void)
-{
-    UNITY_UINT expected[] = {125000, 124995, 125005};
-    UNITY_UINT acutalBigDelta[] = {125101, 124896, 125055};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_UINT_ARRAY_WITHIN(110, expected, acutalBigDelta, 0);
-    VERIFY_FAILS_END
-}
-
-void testUIntArrayWithinDeltaPointlessAndMessage(void)
-{
-    UNITY_UINT expected[] = {125000, 124995, 125005};
-    UNITY_UINT acutalBigDelta[] = {125101, 124896, 125055};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_UINT_ARRAY_WITHIN_MESSAGE(110, expected, acutalBigDelta, 0, "Custom Message.");
-    VERIFY_FAILS_END
-}
-
-void testUIntArrayWithinDeltaExpectedNull(void)
-{
-    UNITY_UINT acutalBigDelta[] = {125101, 124896, 125055};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_UINT_ARRAY_WITHIN(110, NULL, acutalBigDelta, 3);
-    VERIFY_FAILS_END
-}
-
-void testUIntArrayWithinDeltaExpectedNullAndMessage(void)
-{
-    UNITY_UINT acutalBigDelta[] = {125101, 124896, 125055};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_UINT_ARRAY_WITHIN_MESSAGE(110, NULL, acutalBigDelta, 3, "Custom Message.");
-    VERIFY_FAILS_END
-}
-
-void testUIntArrayWithinDeltaActualNull(void)
-{
-    UNITY_UINT expected[] = {125000, 124995, 125005};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_UINT_ARRAY_WITHIN(110, expected, NULL, 3);
-    VERIFY_FAILS_END
-}
-
-void testUIntArrayWithinDeltaActualNullAndMessage(void)
-{
-    UNITY_UINT expected[] = {125000, 124995, 125005};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_UINT_ARRAY_WITHIN_MESSAGE(110, expected, NULL, 3, "Custom Message.");
-    VERIFY_FAILS_END
-}
-
-void testUIntArrayWithinDeltaSamePointer(void)
-{
-    UNITY_UINT expected[] = {125000, 124995, 125005};
-
-    TEST_ASSERT_UINT_ARRAY_WITHIN(110, expected, expected, 3);
-}
-
-void testUIntArrayWithinDeltaSamePointerAndMessage(void)
-{
-    UNITY_UINT expected[] = {125000, 124995, 125005};
-
-    TEST_ASSERT_UINT_ARRAY_WITHIN_MESSAGE(110, expected, expected, 3, "Custom Message.");
-}
-
-void testUInt16ArrayWithinDelta(void)
-{
-    UNITY_UINT16 expected[] = {5000, 4995, 5005};
-    UNITY_UINT16 acutalSmallDelta[] = {5001, 4996, 5005};
-    UNITY_UINT16 acutalBigDelta[] = {5101, 4896, 5055};
-
-    TEST_ASSERT_UINT16_ARRAY_WITHIN(1, expected, acutalSmallDelta, 3);
-    TEST_ASSERT_UINT16_ARRAY_WITHIN(110, expected, acutalBigDelta, 3);
-}
-
-void testUInt16ArrayWithinDeltaAndMessage(void)
-{
-    UNITY_UINT16 expected[] = {5000, 4995, 5005};
-    UNITY_UINT16 acutalSmallDelta[] = {5001, 4996, 5005};
-    UNITY_UINT16 acutalBigDelta[] = {5101, 4896, 5055};
-
-    TEST_ASSERT_UINT16_ARRAY_WITHIN_MESSAGE(1, expected, acutalSmallDelta, 3, "Custom Message.");
-    TEST_ASSERT_UINT16_ARRAY_WITHIN_MESSAGE(110, expected, acutalBigDelta, 3, "Custom Message.");
-}
-
-void testUInt16ArrayNotWithinDelta(void)
-{
-    UNITY_UINT16 expected[] = {5000, 4995, 5005};
-    UNITY_UINT16 acutalBigDelta[] = {5101, 4896, 5055};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_UINT16_ARRAY_WITHIN(1, expected, acutalBigDelta, 3);
-    VERIFY_FAILS_END
-}
-
-void testUInt16ArrayNotWithinDeltaAndMessage(void)
-{
-    UNITY_UINT16 expected[] = {5000, 4995, 5005};
-    UNITY_UINT16 acutalBigDelta[] = {5101, 4896, 5055};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_UINT16_ARRAY_WITHIN_MESSAGE(1, expected, acutalBigDelta, 3, "Custom Message.");
-    VERIFY_FAILS_END
-}
-
-void testUInt16ArrayWithinDeltaPointless(void)
-{
-    UNITY_UINT16 expected[] = {5000, 4995, 5005};
-    UNITY_UINT16 acutalBigDelta[] = {5101, 4896, 5055};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_UINT16_ARRAY_WITHIN(110, expected, acutalBigDelta, 0);
-    VERIFY_FAILS_END
-}
-
-void testUInt16ArrayWithinDeltaPointlessAndMessage(void)
-{
-    UNITY_UINT16 expected[] = {5000, 4995, 5005};
-    UNITY_UINT16 acutalBigDelta[] = {5101, 4896, 5055};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_UINT16_ARRAY_WITHIN_MESSAGE(110, expected, acutalBigDelta, 0, "Custom Message.");
-    VERIFY_FAILS_END
-}
-
-void testUInt16ArrayWithinDeltaExpectedNull(void)
-{
-    UNITY_UINT16 acutalBigDelta[] = {5101, 4896, 5055};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_UINT16_ARRAY_WITHIN(110, NULL, acutalBigDelta, 3);
-    VERIFY_FAILS_END
-}
-
-void testUInt16ArrayWithinDeltaExpectedNullAndMessage(void)
-{
-    UNITY_UINT16 acutalBigDelta[] = {5101, 4896, 5055};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_UINT16_ARRAY_WITHIN_MESSAGE(110, NULL, acutalBigDelta, 3, "Custom Message.");
-    VERIFY_FAILS_END
-}
-
-void testUInt16ArrayWithinDeltaActualNull(void)
-{
-    UNITY_UINT16 expected[] = {5000, 4995, 5005};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_UINT16_ARRAY_WITHIN(110, expected, NULL, 3);
-    VERIFY_FAILS_END
-}
-
-void testUInt16ArrayWithinDeltaActualNullAndMessage(void)
-{
-    UNITY_UINT16 expected[] = {5000, 4995, 5005};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_UINT16_ARRAY_WITHIN_MESSAGE(110, expected, NULL, 3, "Custom Message.");
-    VERIFY_FAILS_END
-}
-
-void testUInt16ArrayWithinDeltaSamePointer(void)
-{
-    UNITY_UINT16 expected[] = {5000, 4995, 5005};
-
-    TEST_ASSERT_UINT16_ARRAY_WITHIN(110, expected, expected, 3);
-}
-
-void testUInt16ArrayWithinDeltaSamePointerAndMessage(void)
-{
-    UNITY_UINT16 expected[] = {5000, 4995, 5005};
-
-    TEST_ASSERT_UINT16_ARRAY_WITHIN_MESSAGE(110, expected, expected, 3, "Custom Message.");
-}
-
-void testUInt8ArrayWithinDelta(void)
-{
-    UNITY_UINT8 expected[] = {20, 95, 55};
-    UNITY_UINT8 acutalSmallDelta[] = {21, 94, 55};
-    UNITY_UINT8 acutalBigDelta[] = {11, 86, 45};
-
-    TEST_ASSERT_UINT8_ARRAY_WITHIN(1, expected, acutalSmallDelta, 3);
-    TEST_ASSERT_UINT8_ARRAY_WITHIN(11, expected, acutalBigDelta, 3);
-}
-
-void testUInt8ArrayWithinDeltaAndMessage(void)
-{
-    UNITY_UINT8 expected[] = {20, 95, 55};
-    UNITY_UINT8 acutalSmallDelta[] = {21, 94, 55};
-    UNITY_UINT8 acutalBigDelta[] = {11, 86, 45};
-
-    TEST_ASSERT_UINT8_ARRAY_WITHIN_MESSAGE(1, expected, acutalSmallDelta, 3, "Custom Message.");
-    TEST_ASSERT_UINT8_ARRAY_WITHIN_MESSAGE(11, expected, acutalBigDelta, 3, "Custom Message.");
-}
-
-void testUInt8ArrayNotWithinDelta(void)
-{
-    UNITY_UINT8 expected[] = {20, 95, 55};
-    UNITY_UINT8 acutalBigDelta[] = {11, 86, 45};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_UINT8_ARRAY_WITHIN(1, expected, acutalBigDelta, 3);
-    VERIFY_FAILS_END
-}
-
-void testUInt8ArrayNotWithinDeltaAndMessage(void)
-{
-    UNITY_UINT8 expected[] = {20, 95, 55};
-    UNITY_UINT8 acutalBigDelta[] = {11, 86, 45};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_UINT8_ARRAY_WITHIN_MESSAGE(1, expected, acutalBigDelta, 3, "Custom Message.");
-    VERIFY_FAILS_END
-}
-
-void testUInt8ArrayWithinDeltaPointless(void)
-{
-    UNITY_UINT8 expected[] = {20, 95, 55};
-    UNITY_UINT8 acutalBigDelta[] = {11, 86, 45};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_UINT8_ARRAY_WITHIN(11, expected, acutalBigDelta, 0);
-    VERIFY_FAILS_END
-}
-
-void testUInt8ArrayWithinDeltaPointlessAndMessage(void)
-{
-    UNITY_UINT8 expected[] = {20, 95, 55};
-    UNITY_UINT8 acutalBigDelta[] = {11, 86, 45};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_UINT8_ARRAY_WITHIN_MESSAGE(11, expected, acutalBigDelta, 0, "Custom Message.");
-    VERIFY_FAILS_END
-}
-
-void testUInt8ArrayWithinDeltaExpectedNull(void)
-{
-    UNITY_UINT8 acutalBigDelta[] = {11, 86, 45};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_UINT8_ARRAY_WITHIN(11, NULL, acutalBigDelta, 3);
-    VERIFY_FAILS_END
-}
-
-void testUInt8ArrayWithinDeltaExpectedNullAndMessage(void)
-{
-    UNITY_UINT8 acutalBigDelta[] = {11, 86, 45};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_UINT8_ARRAY_WITHIN_MESSAGE(11, NULL, acutalBigDelta, 3, "Custom Message.");
-    VERIFY_FAILS_END
-}
-
-void testUInt8ArrayWithinDeltaActualNull(void)
-{
-    UNITY_UINT8 expected[] = {20, 95, 55};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_UINT8_ARRAY_WITHIN(11, expected, NULL, 3);
-    VERIFY_FAILS_END
-}
-
-void testUInt8ArrayWithinDeltaActualNullAndMessage(void)
-{
-    UNITY_UINT8 expected[] = {20, 95, 55};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_UINT8_ARRAY_WITHIN_MESSAGE(11, expected, NULL, 3, "Custom Message.");
-    VERIFY_FAILS_END
-}
-
-void testUInt8ArrayWithinDeltaSamePointer(void)
-{
-    UNITY_UINT8 expected[] = {20, 95, 55};
-
-    TEST_ASSERT_UINT8_ARRAY_WITHIN(11, expected, expected, 3);
-}
-
-void testUInt8ArrayWithinDeltaSamePointerAndMessage(void)
-{
-    UNITY_UINT8 expected[] = {20, 95, 55};
-
-    TEST_ASSERT_UINT8_ARRAY_WITHIN_MESSAGE(11, expected, expected, 3, "Custom Message.");
-}
-
-void testHEX64ArrayWithinDelta(void)
-{
-#ifndef UNITY_SUPPORT_64
-    TEST_IGNORE();
-#else
-    UNITY_UINT64 expected[] = {0xABCD1234, 0xABCD1122, 0xABCD1277};
-    UNITY_UINT64 acutalSmallDelta[] = {0xABCD1235, 0xABCD1121, 0xABCD1277};
-    UNITY_UINT64 acutalBigDelta[] = {0xABCD1267, 0xABCD1188, 0xABCD12AC};
-
-    TEST_ASSERT_HEX64_ARRAY_WITHIN(1, expected, acutalSmallDelta, 3);
-    TEST_ASSERT_HEX64_ARRAY_WITHIN(110, expected, acutalBigDelta, 3);
-#endif
-}
-
-void testHEX64ArrayWithinDeltaAndMessage(void)
-{
-#ifndef UNITY_SUPPORT_64
-    TEST_IGNORE();
-#else
-    UNITY_UINT64 expected[] = {0xABCD1234, 0xABCD1122, 0xABCD1277};
-    UNITY_UINT64 acutalSmallDelta[] = {0xABCD1235, 0xABCD1121, 0xABCD1277};
-    UNITY_UINT64 acutalBigDelta[] = {0xABCD1267, 0xABCD1188, 0xABCD12AC};
-
-    TEST_ASSERT_HEX64_ARRAY_WITHIN_MESSAGE(1, expected, acutalSmallDelta, 3, "Custom Message.");
-    TEST_ASSERT_HEX64_ARRAY_WITHIN_MESSAGE(110, expected, acutalBigDelta, 3, "Custom Message.");
-#endif
-}
-
-void testHEX64ArrayNotWithinDelta(void)
-{
-#ifndef UNITY_SUPPORT_64
-    TEST_IGNORE();
-#else
-    UNITY_UINT64 expected[] = {0xABCD1234, 0xABCD1122, 0xABCD1277};
-    UNITY_UINT64 acutalBigDelta[] = {0xABCD1267, 0xABCD1188, 0xABCD12AC};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_HEX64_ARRAY_WITHIN(1, expected, acutalBigDelta, 3);
-    VERIFY_FAILS_END
-#endif
-}
-
-void testHEX64ArrayNotWithinDeltaAndMessage(void)
-{
-#ifndef UNITY_SUPPORT_64
-    TEST_IGNORE();
-#else
-    UNITY_UINT64 expected[] = {0xABCD1234, 0xABCD1122, 0xABCD1277};
-    UNITY_UINT64 acutalBigDelta[] = {0xABCD1267, 0xABCD1188, 0xABCD12AC};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_HEX64_ARRAY_WITHIN_MESSAGE(1, expected, acutalBigDelta, 3, "Custom Message.");
-    VERIFY_FAILS_END
-#endif
-}
-
-void testHEX64ArrayWithinDeltaPointless(void)
-{
-#ifndef UNITY_SUPPORT_64
-    TEST_IGNORE();
-#else
-    UNITY_UINT64 expected[] = {0xABCD1234, 0xABCD1122, 0xABCD1277};
-    UNITY_UINT64 acutalBigDelta[] = {0xABCD1267, 0xABCD1188, 0xABCD12AC};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_HEX64_ARRAY_WITHIN(110, expected, acutalBigDelta, 0);
-    VERIFY_FAILS_END
-#endif
-}
-
-void testHEX64ArrayWithinDeltaPointlessAndMessage(void)
-{
-#ifndef UNITY_SUPPORT_64
-    TEST_IGNORE();
-#else
-    UNITY_UINT64 expected[] = {0xABCD1234, 0xABCD1122, 0xABCD1277};
-    UNITY_UINT64 acutalBigDelta[] = {0xABCD1267, 0xABCD1188, 0xABCD12AC};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_HEX64_ARRAY_WITHIN_MESSAGE(110, expected, acutalBigDelta, 0, "Custom Message.");
-    VERIFY_FAILS_END
-#endif
-}
-
-void testHEX64ArrayWithinDeltaExpectedNull(void)
-{
-#ifndef UNITY_SUPPORT_64
-    TEST_IGNORE();
-#else
-    UNITY_UINT64 acutalBigDelta[] = {0xABCD1267, 0xABCD1188, 0xABCD12AC};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_HEX64_ARRAY_WITHIN(110, NULL, acutalBigDelta, 3);
-    VERIFY_FAILS_END
-#endif
-}
-
-void testHEX64ArrayWithinDeltaExpectedNullAndMessage(void)
-{
-#ifndef UNITY_SUPPORT_64
-    TEST_IGNORE();
-#else
-    UNITY_UINT64 acutalBigDelta[] = {0xABCD1267, 0xABCD1188, 0xABCD12AC};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_HEX64_ARRAY_WITHIN_MESSAGE(110, NULL, acutalBigDelta, 3, "Custom Message.");
-    VERIFY_FAILS_END
-#endif
-}
-
-void testHEX64ArrayWithinDeltaActualNull(void)
-{
-#ifndef UNITY_SUPPORT_64
-    TEST_IGNORE();
-#else
-    UNITY_UINT64 expected[] = {0xABCD1234, 0xABCD1122, 0xABCD1277};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_HEX64_ARRAY_WITHIN(110, expected, NULL, 3);
-    VERIFY_FAILS_END
-#endif
-}
-
-void testHEX64ArrayWithinDeltaActualNullAndMessage(void)
-{
-#ifndef UNITY_SUPPORT_64
-    TEST_IGNORE();
-#else
-    UNITY_UINT64 expected[] = {0xABCD1234, 0xABCD1122, 0xABCD1277};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_HEX64_ARRAY_WITHIN_MESSAGE(110, expected, NULL, 3, "Custom Message.");
-    VERIFY_FAILS_END
-#endif
-}
-
-void testHEX64ArrayWithinDeltaSamePointer(void)
-{
-#ifndef UNITY_SUPPORT_64
-    TEST_IGNORE();
-#else
-    UNITY_UINT64 expected[] = {0xABCD1234, 0xABCD1122, 0xABCD1277};
-
-    TEST_ASSERT_HEX64_ARRAY_WITHIN(110, expected, expected, 3);
-#endif
-}
-
-void testHEX64ArrayWithinDeltaSamePointerAndMessage(void)
-{
-#ifndef UNITY_SUPPORT_64
-    TEST_IGNORE();
-#else
-    UNITY_UINT64 expected[] = {0xABCD11234, 0xABCD1122, 0xABCD1277};
-
-    TEST_ASSERT_HEX64_ARRAY_WITHIN_MESSAGE(110, expected, expected, 3, "Custom Message.");
-#endif
-}
-
-void testHEX32ArrayWithinDelta(void)
-{
-    UNITY_UINT expected[] = {0xABCD1234, 0xABCD1122, 0xABCD1277};
-    UNITY_UINT acutalSmallDelta[] = {0xABCD1235, 0xABCD1121, 0xABCD1277};
-    UNITY_UINT acutalBigDelta[] = {0xABCD1267, 0xABCD1188, 0xABCD12AC};
-
-    TEST_ASSERT_HEX32_ARRAY_WITHIN(1, expected, acutalSmallDelta, 3);
-    TEST_ASSERT_HEX32_ARRAY_WITHIN(110, expected, acutalBigDelta, 3);
-}
-
-void testHEX32ArrayWithinDeltaAndMessage(void)
-{
-    UNITY_UINT expected[] = {0xABCD1234, 0xABCD1122, 0xABCD1277};
-    UNITY_UINT acutalSmallDelta[] = {0xABCD1235, 0xABCD1121, 0xABCD1277};
-    UNITY_UINT acutalBigDelta[] = {0xABCD1267, 0xABCD1188, 0xABCD12AC};
-
-    TEST_ASSERT_HEX32_ARRAY_WITHIN_MESSAGE(1, expected, acutalSmallDelta, 3, "Custom Message.");
-    TEST_ASSERT_HEX32_ARRAY_WITHIN_MESSAGE(110, expected, acutalBigDelta, 3, "Custom Message.");
-}
-
-void testHEX32ArrayNotWithinDelta(void)
-{
-    UNITY_UINT expected[] = {0xABCD1234, 0xABCD1122, 0xABCD1277};
-    UNITY_UINT acutalBigDelta[] = {0xABCD1267, 0xABCD1188, 0xABCD12AC};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_HEX32_ARRAY_WITHIN(1, expected, acutalBigDelta, 3);
-    VERIFY_FAILS_END
-}
-
-void testHEX32ArrayNotWithinDeltaAndMessage(void)
-{
-    UNITY_UINT expected[] = {0xABCD1234, 0xABCD1122, 0xABCD1277};
-    UNITY_UINT acutalBigDelta[] = {0xABCD1267, 0xABCD1188, 0xABCD12AC};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_HEX32_ARRAY_WITHIN_MESSAGE(1, expected, acutalBigDelta, 3, "Custom Message.");
-    VERIFY_FAILS_END
-}
-
-void testHEX32ArrayWithinDeltaPointless(void)
-{
-    UNITY_UINT expected[] = {0xABCD1234, 0xABCD1122, 0xABCD1277};
-    UNITY_UINT acutalBigDelta[] = {0xABCD1267, 0xABCD1188, 0xABCD12AC};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_HEX32_ARRAY_WITHIN(110, expected, acutalBigDelta, 0);
-    VERIFY_FAILS_END
-}
-
-void testHEX32ArrayWithinDeltaPointlessAndMessage(void)
-{
-    UNITY_UINT expected[] = {0xABCD1234, 0xABCD1122, 0xABCD1277};
-    UNITY_UINT acutalBigDelta[] = {0xABCD1267, 0xABCD1188, 0xABCD12AC};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_HEX32_ARRAY_WITHIN_MESSAGE(110, expected, acutalBigDelta, 0, "Custom Message.");
-    VERIFY_FAILS_END
-}
-
-void testHEX32ArrayWithinDeltaExpectedNull(void)
-{
-    UNITY_UINT acutalBigDelta[] = {0xABCD1267, 0xABCD1188, 0xABCD12AC};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_HEX32_ARRAY_WITHIN(110, NULL, acutalBigDelta, 3);
-    VERIFY_FAILS_END
-}
-
-void testHEX32ArrayWithinDeltaExpectedNullAndMessage(void)
-{
-    UNITY_UINT acutalBigDelta[] = {0xABCD1267, 0xABCD1188, 0xABCD12AC};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_HEX32_ARRAY_WITHIN_MESSAGE(110, NULL, acutalBigDelta, 3, "Custom Message.");
-    VERIFY_FAILS_END
-}
-
-void testHEX32ArrayWithinDeltaActualNull(void)
-{
-    UNITY_UINT expected[] = {0xABCD1234, 0xABCD1122, 0xABCD1277};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_HEX32_ARRAY_WITHIN(110, expected, NULL, 3);
-    VERIFY_FAILS_END
-}
-
-void testHEX32ArrayWithinDeltaActualNullAndMessage(void)
-{
-    UNITY_UINT expected[] = {0xABCD1234, 0xABCD1122, 0xABCD1277};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_HEX32_ARRAY_WITHIN_MESSAGE(110, expected, NULL, 3, "Custom Message.");
-    VERIFY_FAILS_END
-}
-
-void testHEX32ArrayWithinDeltaSamePointer(void)
-{
-    UNITY_UINT expected[] = {0xABCD1234, 0xABCD1122, 0xABCD1277};
-
-    TEST_ASSERT_HEX32_ARRAY_WITHIN(110, expected, expected, 3);
-}
-
-void testHEX32ArrayWithinDeltaSamePointerAndMessage(void)
-{
-    UNITY_UINT expected[] = {0xABCD1234, 0xABCD1122, 0xABCD1277};
-
-    TEST_ASSERT_HEX32_ARRAY_WITHIN_MESSAGE(110, expected, expected, 3, "Custom Message.");
-}
-
-
-void testHEX16ArrayWithinDelta(void)
-{
-    UNITY_UINT16 expected[] = {0x1234, 0x1122, 0x1277};
-    UNITY_UINT16 acutalSmallDelta[] = {0x1235, 0x1121, 0x1277};
-    UNITY_UINT16 acutalBigDelta[] = {0x1267, 0x1188, 0x12AC};
-
-    TEST_ASSERT_HEX16_ARRAY_WITHIN(1, expected, acutalSmallDelta, 3);
-    TEST_ASSERT_HEX16_ARRAY_WITHIN(110, expected, acutalBigDelta, 3);
-}
-
-void testHEX16ArrayWithinDeltaAndMessage(void)
-{
-    UNITY_UINT16 expected[] = {0x1234, 0x1122, 0x1277};
-    UNITY_UINT16 acutalSmallDelta[] = {0x1235, 0x1121, 0x1277};
-    UNITY_UINT16 acutalBigDelta[] = {0x1267, 0x1188, 0x12AC};
-
-    TEST_ASSERT_HEX16_ARRAY_WITHIN_MESSAGE(1, expected, acutalSmallDelta, 3, "Custom Message.");
-    TEST_ASSERT_HEX16_ARRAY_WITHIN_MESSAGE(110, expected, acutalBigDelta, 3, "Custom Message.");
-}
-
-void testHEX16ArrayNotWithinDelta(void)
-{
-    UNITY_UINT16 expected[] = {0x1234, 0x1122, 0x1277};
-    UNITY_UINT16 acutalBigDelta[] = {0x1267, 0x1188, 0x12AC};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_HEX16_ARRAY_WITHIN(1, expected, acutalBigDelta, 3);
-    VERIFY_FAILS_END
-}
-
-void testHEX16ArrayNotWithinDeltaAndMessage(void)
-{
-    UNITY_UINT16 expected[] = {0x1234, 0x1122, 0x1277};
-    UNITY_UINT16 acutalBigDelta[] = {0x1267, 0x1188, 0x12AC};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_HEX16_ARRAY_WITHIN_MESSAGE(1, expected, acutalBigDelta, 3, "Custom Message.");
-    VERIFY_FAILS_END
-}
-
-void testHEX16ArrayWithinDeltaPointless(void)
-{
-    UNITY_UINT16 expected[] = {0x1234, 0x1122, 0x1277};
-    UNITY_UINT16 acutalBigDelta[] = {0x1267, 0x1188, 0x12AC};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_HEX16_ARRAY_WITHIN(110, expected, acutalBigDelta, 0);
-    VERIFY_FAILS_END
-}
-
-void testHEX16ArrayWithinDeltaPointlessAndMessage(void)
-{
-    UNITY_UINT16 expected[] = {0x1234, 0x1122, 0x1277};
-    UNITY_UINT16 acutalBigDelta[] = {0x1267, 0x1188, 0x12AC};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_HEX16_ARRAY_WITHIN_MESSAGE(110, expected, acutalBigDelta, 0, "Custom Message.");
-    VERIFY_FAILS_END
-}
-
-void testHEX16ArrayWithinDeltaExpectedNull(void)
-{
-    UNITY_UINT16 acutalBigDelta[] = {0x1267, 0x1188, 0x12AC};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_HEX16_ARRAY_WITHIN(110, NULL, acutalBigDelta, 3);
-    VERIFY_FAILS_END
-}
-
-void testHEX16ArrayWithinDeltaExpectedNullAndMessage(void)
-{
-    UNITY_UINT16 acutalBigDelta[] = {0x1267, 0x1188, 0x12AC};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_HEX16_ARRAY_WITHIN_MESSAGE(110, NULL, acutalBigDelta, 3, "Custom Message.");
-    VERIFY_FAILS_END
-}
-
-void testHEX16ArrayWithinDeltaActualNull(void)
-{
-    UNITY_UINT16 expected[] = {0x1234, 0x1122, 0x1277};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_HEX16_ARRAY_WITHIN(110, expected, NULL, 3);
-    VERIFY_FAILS_END
-}
-
-void testHEX16ArrayWithinDeltaActualNullAndMessage(void)
-{
-    UNITY_UINT16 expected[] = {0x1234, 0x1122, 0x1277};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_HEX16_ARRAY_WITHIN_MESSAGE(110, expected, NULL, 3, "Custom Message.");
-    VERIFY_FAILS_END
-}
-
-void testHEX16ArrayWithinDeltaSamePointer(void)
-{
-    UNITY_UINT16 expected[] = {0x1234, 0x1122, 0x1277};
-
-    TEST_ASSERT_HEX16_ARRAY_WITHIN(110, expected, expected, 3);
-}
-
-void testHEX16ArrayWithinDeltaSamePointerAndMessage(void)
-{
-    UNITY_UINT16 expected[] = {0x1234, 0x1122, 0x1277};
-
-    TEST_ASSERT_HEX16_ARRAY_WITHIN_MESSAGE(110, expected, expected, 3, "Custom Message.");
-}
-
-void testHEX8ArrayWithinDelta(void)
-{
-    UNITY_UINT8 expected[] = {0x34, 0x22, 0x77};
-    UNITY_UINT8 acutalSmallDelta[] = {0x35, 0x21, 0x77};
-    UNITY_UINT8 acutalBigDelta[] = {0x47, 0x48, 0x4C};
-
-    TEST_ASSERT_HEX8_ARRAY_WITHIN(1, expected, acutalSmallDelta, 3);
-    TEST_ASSERT_HEX8_ARRAY_WITHIN(60, expected, acutalBigDelta, 3);
-}
-
-void testHEX8ArrayWithinDeltaAndMessage(void)
-{
-    UNITY_UINT8 expected[] = {0x34, 0x22, 0x77};
-    UNITY_UINT8 acutalSmallDelta[] = {0x35, 0x21, 0x77};
-    UNITY_UINT8 acutalBigDelta[] = {0x47, 0x48, 0x4C};
-
-    TEST_ASSERT_HEX8_ARRAY_WITHIN_MESSAGE(1, expected, acutalSmallDelta, 3, "Custom Message.");
-    TEST_ASSERT_HEX8_ARRAY_WITHIN_MESSAGE(60, expected, acutalBigDelta, 3, "Custom Message.");
-}
-
-void testHEX8ArrayNotWithinDelta(void)
-{
-    UNITY_UINT8 expected[] = {0x34, 0x22, 0x77};
-    UNITY_UINT8 acutalBigDelta[] = {0x67, 0x88, 0xAC};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_HEX8_ARRAY_WITHIN(1, expected, acutalBigDelta, 3);
-    VERIFY_FAILS_END
-}
-
-void testHEX8ArrayNotWithinDeltaAndMessage(void)
-{
-    UNITY_UINT8 expected[] = {0x34, 0x22, 0x77};
-    UNITY_UINT8 acutalBigDelta[] = {0x67, 0x88, 0xAC};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_HEX8_ARRAY_WITHIN_MESSAGE(1, expected, acutalBigDelta, 3, "Custom Message.");
-    VERIFY_FAILS_END
-}
-
-void testHEX8ArrayWithinDeltaPointless(void)
-{
-    UNITY_UINT8 expected[] = {0x34, 0x22, 0x77};
-    UNITY_UINT8 acutalBigDelta[] = {0x67, 0x88, 0xAC};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_HEX8_ARRAY_WITHIN(60, expected, acutalBigDelta, 0);
-    VERIFY_FAILS_END
-}
-
-void testHEX8ArrayWithinDeltaPointlessAndMessage(void)
-{
-    UNITY_UINT8 expected[] = {0x34, 0x22, 0x77};
-    UNITY_UINT8 acutalBigDelta[] = {0x67, 0x88, 0xAC};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_HEX8_ARRAY_WITHIN_MESSAGE(60, expected, acutalBigDelta, 0, "Custom Message.");
-    VERIFY_FAILS_END
-}
-
-void testHEX8ArrayWithinDeltaExpectedNull(void)
-{
-    UNITY_UINT8 acutalBigDelta[] = {0x67, 0x88, 0xAC};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_HEX8_ARRAY_WITHIN(60, NULL, acutalBigDelta, 3);
-    VERIFY_FAILS_END
-}
-
-void testHEX8ArrayWithinDeltaExpectedNullAndMessage(void)
-{
-    UNITY_UINT8 acutalBigDelta[] = {0x67, 0x88, 0xAC};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_HEX8_ARRAY_WITHIN_MESSAGE(60, NULL, acutalBigDelta, 3, "Custom Message.");
-    VERIFY_FAILS_END
-}
-
-void testHEX8ArrayWithinDeltaActualNull(void)
-{
-    UNITY_UINT8 expected[] = {0x34, 0x22, 0x77};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_HEX8_ARRAY_WITHIN(60, expected, NULL, 3);
-    VERIFY_FAILS_END
-}
-
-void testHEX8ArrayWithinDeltaActualNullAndMessage(void)
-{
-    UNITY_UINT8 expected[] = {0x34, 0x22, 0x77};
-
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_HEX8_ARRAY_WITHIN_MESSAGE(60, expected, NULL, 3, "Custom Message.");
-    VERIFY_FAILS_END
-}
-
-void testHEX8ArrayWithinDeltaSamePointer(void)
-{
-    UNITY_UINT8 expected[] = {0x34, 0x22, 0x77};
-
-    TEST_ASSERT_HEX8_ARRAY_WITHIN(60, expected, expected, 3);
-}
-
-void testHEX8ArrayWithinDeltaSamePointerAndMessage(void)
-{
-    UNITY_UINT8 expected[] = {0x34, 0x22, 0x77};
-
-    TEST_ASSERT_HEX8_ARRAY_WITHIN_MESSAGE(60, expected, expected, 3, "Custom Message.");
-}
 
 //-----------------
-
 void testGreaterThan(void)
 {
     UNITY_INT v0, v1;
@@ -2823,13 +1322,6 @@ void testGreaterThan(void)
     TEST_ASSERT_GREATER_THAN(*p0, v1);
     TEST_ASSERT_GREATER_THAN(v0, *p1);
     TEST_ASSERT_GREATER_THAN(*p0, *p1);
-}
-
-void testNotGreaterThan(void)
-{
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_GREATER_THAN(0, -1);
-    VERIFY_FAILS_END
 }
 
 void testGreaterThanINT(void)
@@ -2848,12 +1340,6 @@ void testGreaterThanINT(void)
     TEST_ASSERT_GREATER_THAN_INT(*p0, *p1);
 }
 
-void testNotGreaterThanINT(void)
-{
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_GREATER_THAN_INT(3334, 302);
-    VERIFY_FAILS_END
-}
 
 void testGreaterThanINT8(void)
 {
@@ -2869,13 +1355,6 @@ void testGreaterThanINT8(void)
     TEST_ASSERT_GREATER_THAN_INT8(*p0, v1);
     TEST_ASSERT_GREATER_THAN_INT8(v0, *p1);
     TEST_ASSERT_GREATER_THAN_INT8(*p0, *p1);
-}
-
-void testNotGreaterThanINT8(void)
-{
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_GREATER_THAN_INT8(127, -128);
-    VERIFY_FAILS_END
 }
 
 void testGreaterThanINT16(void)
@@ -2894,13 +1373,6 @@ void testGreaterThanINT16(void)
     TEST_ASSERT_GREATER_THAN_INT16(*p0, *p1);
 }
 
-void testNotGreaterThanINT16(void)
-{
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_GREATER_THAN_INT16(32768, -32768);
-    VERIFY_FAILS_END
-}
-
 void testGreaterThanINT32(void)
 {
     UNITY_INT32 v0, v1;
@@ -2915,13 +1387,6 @@ void testGreaterThanINT32(void)
     TEST_ASSERT_GREATER_THAN_INT32(*p0, v1);
     TEST_ASSERT_GREATER_THAN_INT32(v0, *p1);
     TEST_ASSERT_GREATER_THAN_INT32(*p0, *p1);
-}
-
-void testNotGreaterThanINT32(void)
-{
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_GREATER_THAN_INT32(214783647, -214783648);
-    VERIFY_FAILS_END
 }
 
 void testGreaterThanUINT(void)
@@ -2940,12 +1405,6 @@ void testGreaterThanUINT(void)
     TEST_ASSERT_GREATER_THAN_UINT(*p0, *p1);
 }
 
-void testNotGreaterThanUINT(void)
-{
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_GREATER_THAN_UINT(1, 0);
-    VERIFY_FAILS_END
-}
 
 void testGreaterThanUINT8(void)
 {
@@ -2961,13 +1420,6 @@ void testGreaterThanUINT8(void)
     TEST_ASSERT_GREATER_THAN_UINT8(*p0, v1);
     TEST_ASSERT_GREATER_THAN_UINT8(v0, *p1);
     TEST_ASSERT_GREATER_THAN_UINT8(*p0, *p1);
-}
-
-void testNotGreaterThanUINT8(void)
-{
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_GREATER_THAN_UINT8(255, 0);
-    VERIFY_FAILS_END
 }
 
 void testGreaterThanUINT16(void)
@@ -2986,13 +1438,6 @@ void testGreaterThanUINT16(void)
     TEST_ASSERT_GREATER_THAN_UINT16(*p0, *p1);
 }
 
-void testNotGreaterThanUINT16(void)
-{
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_GREATER_THAN_UINT16(65535, 0);
-    VERIFY_FAILS_END
-}
-
 void testGreaterThanUINT32(void)
 {
     UNITY_UINT32 v0, v1;
@@ -3007,13 +1452,6 @@ void testGreaterThanUINT32(void)
     TEST_ASSERT_GREATER_THAN_UINT32(*p0, v1);
     TEST_ASSERT_GREATER_THAN_UINT32(v0, *p1);
     TEST_ASSERT_GREATER_THAN_UINT32(*p0, *p1);
-}
-
-void testNotGreaterThanUINT32(void)
-{
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_GREATER_THAN_UINT32(4294967295, 0);
-    VERIFY_FAILS_END
 }
 
 void testGreaterThanHEX8(void)
@@ -3032,13 +1470,6 @@ void testGreaterThanHEX8(void)
     TEST_ASSERT_GREATER_THAN_HEX8(*p0, *p1);
 }
 
-void testNotGreaterThanHEX8(void)
-{
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_GREATER_THAN_HEX8(0xFF, 0x00);
-    VERIFY_FAILS_END
-}
-
 void testGreaterThanHEX16(void)
 {
     UNITY_UINT16 v0, v1;
@@ -3053,13 +1484,6 @@ void testGreaterThanHEX16(void)
     TEST_ASSERT_GREATER_THAN_HEX16(*p0, v1);
     TEST_ASSERT_GREATER_THAN_HEX16(v0, *p1);
     TEST_ASSERT_GREATER_THAN_HEX16(*p0, *p1);
-}
-
-void testNotGreaterThanHEX16(void)
-{
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_GREATER_THAN_HEX16(0xFFFF, 0x00);
-    VERIFY_FAILS_END
 }
 
 void testGreaterThanHEX32(void)
@@ -3078,363 +1502,13 @@ void testGreaterThanHEX32(void)
     TEST_ASSERT_GREATER_THAN_HEX32(*p0, *p1);
 }
 
-void testNotGreaterThanHEX32(void)
+
+void testNotGreaterThan(void)
 {
     EXPECT_ABORT_BEGIN
-    TEST_ASSERT_GREATER_THAN_HEX32(0xFFFFFFFF, 0x00);
+    TEST_ASSERT_GREATER_THAN(0, -1);
     VERIFY_FAILS_END
 }
-
-void testGreaterOrEqual(void)
-{
-    UNITY_INT v0, v1, v2;
-    UNITY_INT *p0, *p1, *p2;
-
-    v0 = 0;
-    v1 = 1;
-    v2 = 0;
-    p0 = &v0;
-    p1 = &v1;
-    p2 = &v2;
-
-    TEST_ASSERT_GREATER_OR_EQUAL(v0, v1);
-    TEST_ASSERT_GREATER_OR_EQUAL(*p0, v1);
-    TEST_ASSERT_GREATER_OR_EQUAL(v0, *p1);
-    TEST_ASSERT_GREATER_OR_EQUAL(*p0, *p1);
-    TEST_ASSERT_GREATER_OR_EQUAL(v0, v2);
-    TEST_ASSERT_GREATER_OR_EQUAL(*p0, v2);
-    TEST_ASSERT_GREATER_OR_EQUAL(v0, *p2);
-    TEST_ASSERT_GREATER_OR_EQUAL(*p0, *p2);
-}
-
-void testNotGreaterOrEqual(void)
-{
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_GREATER_OR_EQUAL(0, -1);
-    VERIFY_FAILS_END
-}
-
-void testGreaterOrEqualINT(void)
-{
-    UNITY_INT v0, v1, v2;
-    UNITY_INT *p0, *p1, *p2;
-
-    v0 = 302;
-    v1 = 3334;
-    v2 = 302;
-    p0 = &v0;
-    p1 = &v1;
-    p2 = &v2;
-
-    TEST_ASSERT_GREATER_OR_EQUAL_INT(v0, v1);
-    TEST_ASSERT_GREATER_OR_EQUAL_INT(*p0, v1);
-    TEST_ASSERT_GREATER_OR_EQUAL_INT(v0, *p1);
-    TEST_ASSERT_GREATER_OR_EQUAL_INT(*p0, *p1);
-    TEST_ASSERT_GREATER_OR_EQUAL_INT(v0, v2);
-    TEST_ASSERT_GREATER_OR_EQUAL_INT(*p0, v2);
-    TEST_ASSERT_GREATER_OR_EQUAL_INT(v0, *p2);
-    TEST_ASSERT_GREATER_OR_EQUAL_INT(*p0, *p2);
-}
-
-void testNotGreaterOrEqualINT(void)
-{
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_GREATER_OR_EQUAL_INT(3334, 302);
-    VERIFY_FAILS_END
-}
-
-void testGreaterOrEqualINT8(void)
-{
-    UNITY_INT8 v0, v1, v2;
-    UNITY_INT8 *p0, *p1, *p2;
-
-    v0 = -128;
-    v1 = 127;
-    v2 = -128;
-    p0 = &v0;
-    p1 = &v1;
-    p2 = &v2;
-
-    TEST_ASSERT_GREATER_OR_EQUAL_INT8(v0, v1);
-    TEST_ASSERT_GREATER_OR_EQUAL_INT8(*p0, v1);
-    TEST_ASSERT_GREATER_OR_EQUAL_INT8(v0, *p1);
-    TEST_ASSERT_GREATER_OR_EQUAL_INT8(*p0, *p1);
-    TEST_ASSERT_GREATER_OR_EQUAL_INT8(v0, v2);
-    TEST_ASSERT_GREATER_OR_EQUAL_INT8(*p0, v2);
-    TEST_ASSERT_GREATER_OR_EQUAL_INT8(v0, *p2);
-    TEST_ASSERT_GREATER_OR_EQUAL_INT8(*p0, *p2);
-}
-
-void testNotGreaterOrEqualINT8(void)
-{
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_GREATER_OR_EQUAL_INT8(127, -128);
-    VERIFY_FAILS_END
-}
-
-void testGreaterOrEqualINT16(void)
-{
-    UNITY_INT16 v0, v1, v2;
-    UNITY_INT16 *p0, *p1, *p2;
-
-    v0 = -32768;
-    v1 = 32767;
-    v2 = -32768;
-    p0 = &v0;
-    p1 = &v1;
-    p2 = &v2;
-
-    TEST_ASSERT_GREATER_OR_EQUAL_INT16(v0, v1);
-    TEST_ASSERT_GREATER_OR_EQUAL_INT16(*p0, v1);
-    TEST_ASSERT_GREATER_OR_EQUAL_INT16(v0, *p1);
-    TEST_ASSERT_GREATER_OR_EQUAL_INT16(*p0, *p1);
-    TEST_ASSERT_GREATER_OR_EQUAL_INT16(v0, v2);
-    TEST_ASSERT_GREATER_OR_EQUAL_INT16(*p0, v2);
-    TEST_ASSERT_GREATER_OR_EQUAL_INT16(v0, *p2);
-    TEST_ASSERT_GREATER_OR_EQUAL_INT16(*p0, *p2);
-}
-
-void testNotGreaterOrEqualINT16(void)
-{
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_GREATER_OR_EQUAL_INT16(32767, -32768);
-    VERIFY_FAILS_END
-}
-
-void testGreaterOrEqualINT32(void)
-{
-    UNITY_INT32 v0, v1, v2;
-    UNITY_INT32 *p0, *p1, *p2;
-
-    v0 = -214783648;
-    v1 = 214783647;
-    v2 = -214783648;
-    p0 = &v0;
-    p1 = &v1;
-    p2 = &v2;
-
-    TEST_ASSERT_GREATER_OR_EQUAL_INT32(v0, v1);
-    TEST_ASSERT_GREATER_OR_EQUAL_INT32(*p0, v1);
-    TEST_ASSERT_GREATER_OR_EQUAL_INT32(v0, *p1);
-    TEST_ASSERT_GREATER_OR_EQUAL_INT32(*p0, *p1);
-    TEST_ASSERT_GREATER_OR_EQUAL_INT32(v0, v2);
-    TEST_ASSERT_GREATER_OR_EQUAL_INT32(*p0, v2);
-    TEST_ASSERT_GREATER_OR_EQUAL_INT32(v0, *p2);
-    TEST_ASSERT_GREATER_OR_EQUAL_INT32(*p0, *p2);
-}
-
-void testNotGreaterOrEqualINT32(void)
-{
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_GREATER_OR_EQUAL_INT32(214783647, -214783648);
-    VERIFY_FAILS_END
-}
-
-void testGreaterOrEqualUINT(void)
-{
-    UNITY_UINT v0, v1, v2;
-    UNITY_UINT *p0, *p1, *p2;
-
-    v0 = 0;
-    v1 = 1;
-    v2 = 0;
-    p0 = &v0;
-    p1 = &v1;
-    p2 = &v2;
-
-    TEST_ASSERT_GREATER_OR_EQUAL_UINT(v0, v1);
-    TEST_ASSERT_GREATER_OR_EQUAL_UINT(*p0, v1);
-    TEST_ASSERT_GREATER_OR_EQUAL_UINT(v0, *p1);
-    TEST_ASSERT_GREATER_OR_EQUAL_UINT(*p0, *p1);
-    TEST_ASSERT_GREATER_OR_EQUAL_UINT(v0, v2);
-    TEST_ASSERT_GREATER_OR_EQUAL_UINT(*p0, v2);
-    TEST_ASSERT_GREATER_OR_EQUAL_UINT(v0, *p2);
-    TEST_ASSERT_GREATER_OR_EQUAL_UINT(*p0, *p2);
-}
-
-void testNotGreaterOrEqualUINT(void)
-{
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_GREATER_OR_EQUAL_UINT(1, 0);
-    VERIFY_FAILS_END
-}
-
-void testGreaterOrEqualUINT8(void)
-{
-    UNITY_UINT8 v0, v1, v2;
-    UNITY_UINT8 *p0, *p1, *p2;
-
-    v0 = 0;
-    v1 = 255;
-    v2 = 0;
-    p0 = &v0;
-    p1 = &v1;
-    p2 = &v2;
-
-    TEST_ASSERT_GREATER_OR_EQUAL_UINT8(v0, v1);
-    TEST_ASSERT_GREATER_OR_EQUAL_UINT8(*p0, v1);
-    TEST_ASSERT_GREATER_OR_EQUAL_UINT8(v0, *p1);
-    TEST_ASSERT_GREATER_OR_EQUAL_UINT8(*p0, *p1);
-    TEST_ASSERT_GREATER_OR_EQUAL_UINT8(v0, v2);
-    TEST_ASSERT_GREATER_OR_EQUAL_UINT8(*p0, v2);
-    TEST_ASSERT_GREATER_OR_EQUAL_UINT8(v0, *p2);
-    TEST_ASSERT_GREATER_OR_EQUAL_UINT8(*p0, *p2);
-}
-
-void testNotGreaterOrEqualUINT8(void)
-{
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_GREATER_OR_EQUAL_UINT8(255, 0);
-    VERIFY_FAILS_END
-}
-
-void testGreaterOrEqualUINT16(void)
-{
-    UNITY_UINT16 v0, v1, v2;
-    UNITY_UINT16 *p0, *p1, *p2;
-
-    v0 = 0;
-    v1 = 65535;
-    v2 = 0;
-    p0 = &v0;
-    p1 = &v1;
-    p2 = &v2;
-
-    TEST_ASSERT_GREATER_OR_EQUAL_UINT16(v0, v1);
-    TEST_ASSERT_GREATER_OR_EQUAL_UINT16(*p0, v1);
-    TEST_ASSERT_GREATER_OR_EQUAL_UINT16(v0, *p1);
-    TEST_ASSERT_GREATER_OR_EQUAL_UINT16(*p0, *p1);
-    TEST_ASSERT_GREATER_OR_EQUAL_UINT16(v0, v2);
-    TEST_ASSERT_GREATER_OR_EQUAL_UINT16(*p0, v2);
-    TEST_ASSERT_GREATER_OR_EQUAL_UINT16(v0, *p2);
-    TEST_ASSERT_GREATER_OR_EQUAL_UINT16(*p0, *p2);
-}
-
-void testNotGreaterOrEqualUINT16(void)
-{
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_GREATER_OR_EQUAL_UINT16(65535, 0);
-    VERIFY_FAILS_END
-}
-
-void testGreaterOrEqualUINT32(void)
-{
-    UNITY_UINT32 v0, v1, v2;
-    UNITY_UINT32 *p0, *p1, *p2;
-
-    v0 = 0;
-    v1 = 4294967295;
-    v2 = 0;
-    p0 = &v0;
-    p1 = &v1;
-    p2 = &v2;
-
-    TEST_ASSERT_GREATER_OR_EQUAL_UINT32(v0, v1);
-    TEST_ASSERT_GREATER_OR_EQUAL_UINT32(*p0, v1);
-    TEST_ASSERT_GREATER_OR_EQUAL_UINT32(v0, *p1);
-    TEST_ASSERT_GREATER_OR_EQUAL_UINT32(*p0, *p1);
-    TEST_ASSERT_GREATER_OR_EQUAL_UINT32(v0, v2);
-    TEST_ASSERT_GREATER_OR_EQUAL_UINT32(*p0, v2);
-    TEST_ASSERT_GREATER_OR_EQUAL_UINT32(v0, *p2);
-    TEST_ASSERT_GREATER_OR_EQUAL_UINT32(*p0, *p2);
-}
-
-void testNotGreaterOrEqualUINT32(void)
-{
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_GREATER_OR_EQUAL_UINT32(4294967295, 0);
-    VERIFY_FAILS_END
-}
-
-void testGreaterOrEqualHEX8(void)
-{
-    UNITY_UINT8 v0, v1, v2;
-    UNITY_UINT8 *p0, *p1, *p2;
-
-    v0 = 0x00;
-    v1 = 0xFF;
-    v2 = 0x00;
-    p0 = &v0;
-    p1 = &v1;
-    p2 = &v2;
-
-    TEST_ASSERT_GREATER_OR_EQUAL_HEX8(v0, v1);
-    TEST_ASSERT_GREATER_OR_EQUAL_HEX8(*p0, v1);
-    TEST_ASSERT_GREATER_OR_EQUAL_HEX8(v0, *p1);
-    TEST_ASSERT_GREATER_OR_EQUAL_HEX8(*p0, *p1);
-    TEST_ASSERT_GREATER_OR_EQUAL_HEX8(v0, v2);
-    TEST_ASSERT_GREATER_OR_EQUAL_HEX8(*p0, v2);
-    TEST_ASSERT_GREATER_OR_EQUAL_HEX8(v0, *p2);
-    TEST_ASSERT_GREATER_OR_EQUAL_HEX8(*p0, *p2);
-}
-
-void testNotGreaterOrEqualHEX8(void)
-{
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_GREATER_OR_EQUAL_HEX8(0xFF, 0x00);
-    VERIFY_FAILS_END
-}
-
-void testGreaterOrEqualHEX16(void)
-{
-    UNITY_UINT16 v0, v1, v2;
-    UNITY_UINT16 *p0, *p1, *p2;
-
-    v0 = 0x0000;
-    v1 = 0xFFFF;
-    v2 = 0x0000;
-    p0 = &v0;
-    p1 = &v1;
-    p2 = &v2;
-
-    TEST_ASSERT_GREATER_OR_EQUAL_HEX16(v0, v1);
-    TEST_ASSERT_GREATER_OR_EQUAL_HEX16(*p0, v1);
-    TEST_ASSERT_GREATER_OR_EQUAL_HEX16(v0, *p1);
-    TEST_ASSERT_GREATER_OR_EQUAL_HEX16(*p0, *p1);
-    TEST_ASSERT_GREATER_OR_EQUAL_HEX16(v0, v2);
-    TEST_ASSERT_GREATER_OR_EQUAL_HEX16(*p0, v2);
-    TEST_ASSERT_GREATER_OR_EQUAL_HEX16(v0, *p2);
-    TEST_ASSERT_GREATER_OR_EQUAL_HEX16(*p0, *p2);
-}
-
-void testNotGreaterOrEqualHEX16(void)
-{
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_GREATER_OR_EQUAL_HEX16(0xFFFF, 0x00);
-    VERIFY_FAILS_END
-}
-
-void testGreaterOrEqualHEX32(void)
-{
-    UNITY_UINT32 v0, v1, v2;
-    UNITY_UINT32 *p0, *p1, *p2;
-
-    v0 = 0x00000000;
-    v1 = 0xFFFFFFFF;
-    v2 = 0x00000000;
-    p0 = &v0;
-    p1 = &v1;
-    p2 = &v2;
-
-    TEST_ASSERT_GREATER_OR_EQUAL_HEX32(v0, v1);
-    TEST_ASSERT_GREATER_OR_EQUAL_HEX32(*p0, v1);
-    TEST_ASSERT_GREATER_OR_EQUAL_HEX32(v0, *p1);
-    TEST_ASSERT_GREATER_OR_EQUAL_HEX32(*p0, *p1);
-    TEST_ASSERT_GREATER_OR_EQUAL_HEX32(v0, v2);
-    TEST_ASSERT_GREATER_OR_EQUAL_HEX32(*p0, v2);
-    TEST_ASSERT_GREATER_OR_EQUAL_HEX32(v0, *p2);
-    TEST_ASSERT_GREATER_OR_EQUAL_HEX32(*p0, *p2);
-}
-
-void testNotGreaterOrEqualHEX32(void)
-{
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_GREATER_OR_EQUAL_HEX32(0xFFFFFFFF, 0x00);
-    VERIFY_FAILS_END
-}
-
-//-----------------
-
 
 void testLessThan(void)
 {
@@ -3450,13 +1524,6 @@ void testLessThan(void)
     TEST_ASSERT_LESS_THAN(*p0, v1);
     TEST_ASSERT_LESS_THAN(v0, *p1);
     TEST_ASSERT_LESS_THAN(*p0, *p1);
-}
-
-void testNotLessThan(void)
-{
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_LESS_THAN(0, 1);
-    VERIFY_FAILS_END
 }
 
 void testLessThanINT(void)
@@ -3475,12 +1542,6 @@ void testLessThanINT(void)
     TEST_ASSERT_LESS_THAN_INT(*p0, *p1);
 }
 
-void testNotLessThanINT(void)
-{
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_LESS_THAN_INT(302, 3334);
-    VERIFY_FAILS_END
-}
 
 void testLessThanINT8(void)
 {
@@ -3496,13 +1557,6 @@ void testLessThanINT8(void)
     TEST_ASSERT_LESS_THAN_INT8(*p0, v1);
     TEST_ASSERT_LESS_THAN_INT8(v0, *p1);
     TEST_ASSERT_LESS_THAN_INT8(*p0, *p1);
-}
-
-void testNotLessThanINT8(void)
-{
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_LESS_THAN_INT8(-128, 127);
-    VERIFY_FAILS_END
 }
 
 void testLessThanINT16(void)
@@ -3521,13 +1575,6 @@ void testLessThanINT16(void)
     TEST_ASSERT_LESS_THAN_INT16(*p0, *p1);
 }
 
-void testNotLessThanINT16(void)
-{
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_LESS_THAN_INT16(-32768, 32767);
-    VERIFY_FAILS_END
-}
-
 void testLessThanINT32(void)
 {
     UNITY_INT32 v0, v1;
@@ -3542,13 +1589,6 @@ void testLessThanINT32(void)
     TEST_ASSERT_LESS_THAN_INT32(*p0, v1);
     TEST_ASSERT_LESS_THAN_INT32(v0, *p1);
     TEST_ASSERT_LESS_THAN_INT32(*p0, *p1);
-}
-
-void testNotLessThanINT32(void)
-{
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_LESS_THAN_INT32(-214783648, 214783647);
-    VERIFY_FAILS_END
 }
 
 void testLessThanUINT(void)
@@ -3567,12 +1607,6 @@ void testLessThanUINT(void)
     TEST_ASSERT_LESS_THAN_UINT(*p0, *p1);
 }
 
-void testNotLessThanUINT(void)
-{
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_LESS_THAN_UINT(0, 1);
-    VERIFY_FAILS_END
-}
 
 void testLessThanUINT8(void)
 {
@@ -3588,13 +1622,6 @@ void testLessThanUINT8(void)
     TEST_ASSERT_LESS_THAN_UINT8(*p0, v1);
     TEST_ASSERT_LESS_THAN_UINT8(v0, *p1);
     TEST_ASSERT_LESS_THAN_UINT8(*p0, *p1);
-}
-
-void testNotLessThanUINT8(void)
-{
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_LESS_THAN_UINT8(0, 255);
-    VERIFY_FAILS_END
 }
 
 void testLessThanUINT16(void)
@@ -3613,13 +1640,6 @@ void testLessThanUINT16(void)
     TEST_ASSERT_LESS_THAN_UINT16(*p0, *p1);
 }
 
-void testNotLessThanUINT16(void)
-{
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_LESS_THAN_UINT16(0, 65535);
-    VERIFY_FAILS_END
-}
-
 void testLessThanUINT32(void)
 {
     UNITY_UINT32 v0, v1;
@@ -3634,13 +1654,6 @@ void testLessThanUINT32(void)
     TEST_ASSERT_LESS_THAN_UINT32(*p0, v1);
     TEST_ASSERT_LESS_THAN_UINT32(v0, *p1);
     TEST_ASSERT_LESS_THAN_UINT32(*p0, *p1);
-}
-
-void testNotLessThanUINT32(void)
-{
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_LESS_THAN_UINT32(0, 4294967295);
-    VERIFY_FAILS_END
 }
 
 void testLessThanHEX8(void)
@@ -3659,13 +1672,6 @@ void testLessThanHEX8(void)
     TEST_ASSERT_LESS_THAN_HEX8(*p0, *p1);
 }
 
-void testNotLessThanHEX8(void)
-{
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_LESS_THAN_HEX8(0x00, 0xFF);
-    VERIFY_FAILS_END
-}
-
 void testLessThanHEX16(void)
 {
     UNITY_UINT16 v0, v1;
@@ -3680,13 +1686,6 @@ void testLessThanHEX16(void)
     TEST_ASSERT_LESS_THAN_HEX16(*p0, v1);
     TEST_ASSERT_LESS_THAN_HEX16(v0, *p1);
     TEST_ASSERT_LESS_THAN_HEX16(*p0, *p1);
-}
-
-void testNotLessThanHEX16(void)
-{
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_LESS_THAN_HEX16(0x0000, 0xFFFF);
-    VERIFY_FAILS_END
 }
 
 void testLessThanHEX32(void)
@@ -3705,360 +1704,15 @@ void testLessThanHEX32(void)
     TEST_ASSERT_LESS_THAN_HEX32(*p0, *p1);
 }
 
-void testNotLessThanHEX32(void)
+
+void testNotLessThan(void)
 {
     EXPECT_ABORT_BEGIN
-    TEST_ASSERT_LESS_THAN_HEX32(0x00000000, 0xFFFFFFFF);
+    TEST_ASSERT_LESS_THAN(0, 1);
     VERIFY_FAILS_END
 }
 
-void testLessOrEqual(void)
-{
-    UNITY_INT v0, v1, v2;
-    UNITY_INT *p0, *p1, *p2;
 
-    v0 = 0;
-    v1 = -1;
-    v2 = 0;
-    p0 = &v0;
-    p1 = &v1;
-    p2 = &v2;
-
-    TEST_ASSERT_LESS_OR_EQUAL(v0, v1);
-    TEST_ASSERT_LESS_OR_EQUAL(*p0, v1);
-    TEST_ASSERT_LESS_OR_EQUAL(v0, *p1);
-    TEST_ASSERT_LESS_OR_EQUAL(*p0, *p1);
-    TEST_ASSERT_LESS_OR_EQUAL(v0, v2);
-    TEST_ASSERT_LESS_OR_EQUAL(*p0, v2);
-    TEST_ASSERT_LESS_OR_EQUAL(v0, *p2);
-    TEST_ASSERT_LESS_OR_EQUAL(*p0, *p2);
-}
-
-void testNotLessOrEqual(void)
-{
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_LESS_OR_EQUAL(0, 1);
-    VERIFY_FAILS_END
-}
-
-void testLessOrEqualINT(void)
-{
-    UNITY_INT v0, v1, v2;
-    UNITY_INT *p0, *p1, *p2;
-
-    v0 = 3334;
-    v1 = 302;
-    v2 = 3334;
-    p0 = &v0;
-    p1 = &v1;
-    p2 = &v2;
-
-    TEST_ASSERT_LESS_OR_EQUAL_INT(v0, v1);
-    TEST_ASSERT_LESS_OR_EQUAL_INT(*p0, v1);
-    TEST_ASSERT_LESS_OR_EQUAL_INT(v0, *p1);
-    TEST_ASSERT_LESS_OR_EQUAL_INT(*p0, *p1);
-    TEST_ASSERT_LESS_OR_EQUAL_INT(v0, v2);
-    TEST_ASSERT_LESS_OR_EQUAL_INT(*p0, v2);
-    TEST_ASSERT_LESS_OR_EQUAL_INT(v0, *p2);
-    TEST_ASSERT_LESS_OR_EQUAL_INT(*p0, *p2);
-}
-
-void testNotLessOrEqualINT(void)
-{
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_LESS_OR_EQUAL_INT(302, 3334);
-    VERIFY_FAILS_END
-}
-
-void testLessOrEqualINT8(void)
-{
-    UNITY_INT8 v0, v1, v2;
-    UNITY_INT8 *p0, *p1, *p2;
-
-    v0 = 127;
-    v1 = -128;
-    v2 = 127;
-    p0 = &v0;
-    p1 = &v1;
-    p2 = &v2;
-
-    TEST_ASSERT_LESS_OR_EQUAL_INT8(v0, v1);
-    TEST_ASSERT_LESS_OR_EQUAL_INT8(*p0, v1);
-    TEST_ASSERT_LESS_OR_EQUAL_INT8(v0, *p1);
-    TEST_ASSERT_LESS_OR_EQUAL_INT8(*p0, *p1);
-    TEST_ASSERT_LESS_OR_EQUAL_INT8(v0, v2);
-    TEST_ASSERT_LESS_OR_EQUAL_INT8(*p0, v2);
-    TEST_ASSERT_LESS_OR_EQUAL_INT8(v0, *p2);
-    TEST_ASSERT_LESS_OR_EQUAL_INT8(*p0, *p2);
-}
-
-void testNotLessOrEqualINT8(void)
-{
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_LESS_OR_EQUAL_INT8(-128, 127);
-    VERIFY_FAILS_END
-}
-
-void testLessOrEqualINT16(void)
-{
-    UNITY_INT16 v0, v1, v2;
-    UNITY_INT16 *p0, *p1, *p2;
-
-    v0 = 32767;
-    v1 = -32768;
-    v2 = 32767;
-    p0 = &v0;
-    p1 = &v1;
-    p2 = &v2;
-
-    TEST_ASSERT_LESS_OR_EQUAL_INT16(v0, v1);
-    TEST_ASSERT_LESS_OR_EQUAL_INT16(*p0, v1);
-    TEST_ASSERT_LESS_OR_EQUAL_INT16(v0, *p1);
-    TEST_ASSERT_LESS_OR_EQUAL_INT16(*p0, *p1);
-    TEST_ASSERT_LESS_OR_EQUAL_INT16(v0, v2);
-    TEST_ASSERT_LESS_OR_EQUAL_INT16(*p0, v2);
-    TEST_ASSERT_LESS_OR_EQUAL_INT16(v0, *p2);
-    TEST_ASSERT_LESS_OR_EQUAL_INT16(*p0, *p2);
-}
-
-void testNotLessOrEqualINT16(void)
-{
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_LESS_OR_EQUAL_INT16(-32768, 32767);
-    VERIFY_FAILS_END
-}
-
-void testLessOrEqualINT32(void)
-{
-    UNITY_INT32 v0, v1, v2;
-    UNITY_INT32 *p0, *p1, *p2;
-
-    v0 = 214783647;
-    v1 = -214783648;
-    v2 = 214783647;
-    p0 = &v0;
-    p1 = &v1;
-    p2 = &v2;
-
-    TEST_ASSERT_LESS_OR_EQUAL_INT32(v0, v1);
-    TEST_ASSERT_LESS_OR_EQUAL_INT32(*p0, v1);
-    TEST_ASSERT_LESS_OR_EQUAL_INT32(v0, *p1);
-    TEST_ASSERT_LESS_OR_EQUAL_INT32(*p0, *p1);
-    TEST_ASSERT_LESS_OR_EQUAL_INT32(v0, v2);
-    TEST_ASSERT_LESS_OR_EQUAL_INT32(*p0, v2);
-    TEST_ASSERT_LESS_OR_EQUAL_INT32(v0, *p2);
-    TEST_ASSERT_LESS_OR_EQUAL_INT32(*p0, *p2);
-}
-
-void testNotLessOrEqualINT32(void)
-{
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_LESS_OR_EQUAL_INT32(-214783648, 214783647);
-    VERIFY_FAILS_END
-}
-
-void testLessOrEqualUINT(void)
-{
-    UNITY_UINT v0, v1, v2;
-    UNITY_UINT *p0, *p1, *p2;
-
-    v0 = 1;
-    v1 = 0;
-    v2 = 1;
-    p0 = &v0;
-    p1 = &v1;
-    p2 = &v2;
-
-    TEST_ASSERT_LESS_OR_EQUAL_UINT(v0, v1);
-    TEST_ASSERT_LESS_OR_EQUAL_UINT(*p0, v1);
-    TEST_ASSERT_LESS_OR_EQUAL_UINT(v0, *p1);
-    TEST_ASSERT_LESS_OR_EQUAL_UINT(*p0, *p1);
-    TEST_ASSERT_LESS_OR_EQUAL_UINT(v0, v2);
-    TEST_ASSERT_LESS_OR_EQUAL_UINT(*p0, v2);
-    TEST_ASSERT_LESS_OR_EQUAL_UINT(v0, *p2);
-    TEST_ASSERT_LESS_OR_EQUAL_UINT(*p0, *p2);
-}
-
-void testNotLessOrEqualUINT(void)
-{
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_LESS_OR_EQUAL_UINT(0, 1);
-    VERIFY_FAILS_END
-}
-
-void testLessOrEqualUINT8(void)
-{
-    UNITY_UINT8 v0, v1, v2;
-    UNITY_UINT8 *p0, *p1, *p2;
-
-    v0 = 255;
-    v1 = 0;
-    v2 = 255;
-    p0 = &v0;
-    p1 = &v1;
-    p2 = &v2;
-
-    TEST_ASSERT_LESS_OR_EQUAL_UINT8(v0, v1);
-    TEST_ASSERT_LESS_OR_EQUAL_UINT8(*p0, v1);
-    TEST_ASSERT_LESS_OR_EQUAL_UINT8(v0, *p1);
-    TEST_ASSERT_LESS_OR_EQUAL_UINT8(*p0, *p1);
-    TEST_ASSERT_LESS_OR_EQUAL_UINT8(v0, v2);
-    TEST_ASSERT_LESS_OR_EQUAL_UINT8(*p0, v2);
-    TEST_ASSERT_LESS_OR_EQUAL_UINT8(v0, *p2);
-    TEST_ASSERT_LESS_OR_EQUAL_UINT8(*p0, *p2);
-}
-
-void testNotLessOrEqualUINT8(void)
-{
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_LESS_OR_EQUAL_UINT8(0, 255);
-    VERIFY_FAILS_END
-}
-
-void testLessOrEqualUINT16(void)
-{
-    UNITY_UINT16 v0, v1, v2;
-    UNITY_UINT16 *p0, *p1, *p2;
-
-    v0 = 65535;
-    v1 = 0;
-    v2 = 65535;
-    p0 = &v0;
-    p1 = &v1;
-    p2 = &v2;
-
-    TEST_ASSERT_LESS_OR_EQUAL_UINT16(v0, v1);
-    TEST_ASSERT_LESS_OR_EQUAL_UINT16(*p0, v1);
-    TEST_ASSERT_LESS_OR_EQUAL_UINT16(v0, *p1);
-    TEST_ASSERT_LESS_OR_EQUAL_UINT16(*p0, *p1);
-    TEST_ASSERT_LESS_OR_EQUAL_UINT16(v0, v2);
-    TEST_ASSERT_LESS_OR_EQUAL_UINT16(*p0, v2);
-    TEST_ASSERT_LESS_OR_EQUAL_UINT16(v0, *p2);
-    TEST_ASSERT_LESS_OR_EQUAL_UINT16(*p0, *p2);
-}
-
-void testNotLessOrEqualUINT16(void)
-{
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_LESS_OR_EQUAL_UINT16(0, 65535);
-    VERIFY_FAILS_END
-}
-
-void testLessOrEqualUINT32(void)
-{
-    UNITY_UINT32 v0, v1, v2;
-    UNITY_UINT32 *p0, *p1, *p2;
-
-    v0 = 4294967295;
-    v1 = 0;
-    v2 = 4294967295;
-    p0 = &v0;
-    p1 = &v1;
-    p2 = &v2;
-
-    TEST_ASSERT_LESS_OR_EQUAL_UINT32(v0, v1);
-    TEST_ASSERT_LESS_OR_EQUAL_UINT32(*p0, v1);
-    TEST_ASSERT_LESS_OR_EQUAL_UINT32(v0, *p1);
-    TEST_ASSERT_LESS_OR_EQUAL_UINT32(*p0, *p1);
-    TEST_ASSERT_LESS_OR_EQUAL_UINT32(v0, v2);
-    TEST_ASSERT_LESS_OR_EQUAL_UINT32(*p0, v2);
-    TEST_ASSERT_LESS_OR_EQUAL_UINT32(v0, *p2);
-    TEST_ASSERT_LESS_OR_EQUAL_UINT32(*p0, *p2);
-}
-
-void testNotLessOrEqualUINT32(void)
-{
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_LESS_OR_EQUAL_UINT32(0, 4294967295);
-    VERIFY_FAILS_END
-}
-
-void testLessOrEqualHEX8(void)
-{
-    UNITY_UINT8 v0, v1, v2;
-    UNITY_UINT8 *p0, *p1, *p2;
-
-    v0 = 0xFF;
-    v1 = 0x00;
-    v2 = 0xFF;
-    p0 = &v0;
-    p1 = &v1;
-    p2 = &v2;
-
-    TEST_ASSERT_LESS_OR_EQUAL_HEX8(v0, v1);
-    TEST_ASSERT_LESS_OR_EQUAL_HEX8(*p0, v1);
-    TEST_ASSERT_LESS_OR_EQUAL_HEX8(v0, *p1);
-    TEST_ASSERT_LESS_OR_EQUAL_HEX8(*p0, *p1);
-    TEST_ASSERT_LESS_OR_EQUAL_HEX8(v0, v2);
-    TEST_ASSERT_LESS_OR_EQUAL_HEX8(*p0, v2);
-    TEST_ASSERT_LESS_OR_EQUAL_HEX8(v0, *p2);
-    TEST_ASSERT_LESS_OR_EQUAL_HEX8(*p0, *p2);
-}
-
-void testNotLessOrEqualHEX8(void)
-{
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_LESS_OR_EQUAL_HEX8(0x00, 0xFF);
-    VERIFY_FAILS_END
-}
-
-void testLessOrEqualHEX16(void)
-{
-    UNITY_UINT16 v0, v1, v2;
-    UNITY_UINT16 *p0, *p1, *p2;
-
-    v0 = 0xFFFF;
-    v1 = 0x0000;
-    v2 = 0xFFFF;
-    p0 = &v0;
-    p1 = &v1;
-    p2 = &v2;
-
-    TEST_ASSERT_LESS_OR_EQUAL_HEX16(v0, v1);
-    TEST_ASSERT_LESS_OR_EQUAL_HEX16(*p0, v1);
-    TEST_ASSERT_LESS_OR_EQUAL_HEX16(v0, *p1);
-    TEST_ASSERT_LESS_OR_EQUAL_HEX16(*p0, *p1);
-    TEST_ASSERT_LESS_OR_EQUAL_HEX16(v0, v2);
-    TEST_ASSERT_LESS_OR_EQUAL_HEX16(*p0, v2);
-    TEST_ASSERT_LESS_OR_EQUAL_HEX16(v0, *p2);
-    TEST_ASSERT_LESS_OR_EQUAL_HEX16(*p0, *p2);
-}
-
-void testNotLessOrEqualHEX16(void)
-{
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_LESS_OR_EQUAL_HEX16(0x0000, 0xFFFF);
-    VERIFY_FAILS_END
-}
-
-void testLessOrEqualHEX32(void)
-{
-    UNITY_UINT32 v0, v1, v2;
-    UNITY_UINT32 *p0, *p1, *p2;
-
-    v0 = 0xFFFFFFFF;
-    v1 = 0x00000000;
-    v2 = 0xFFFFFFFF;
-    p0 = &v0;
-    p1 = &v1;
-    p2 = &v2;
-
-    TEST_ASSERT_LESS_OR_EQUAL_HEX32(v0, v1);
-    TEST_ASSERT_LESS_OR_EQUAL_HEX32(*p0, v1);
-    TEST_ASSERT_LESS_OR_EQUAL_HEX32(v0, *p1);
-    TEST_ASSERT_LESS_OR_EQUAL_HEX32(*p0, *p1);
-    TEST_ASSERT_LESS_OR_EQUAL_HEX32(v0, v2);
-    TEST_ASSERT_LESS_OR_EQUAL_HEX32(*p0, v2);
-    TEST_ASSERT_LESS_OR_EQUAL_HEX32(v0, *p2);
-    TEST_ASSERT_LESS_OR_EQUAL_HEX32(*p0, *p2);
-}
-
-void testNotLessOrEqualHEX32(void)
-{
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_LESS_OR_EQUAL_HEX32(0x00000000, 0xFFFFFFFF);
-    VERIFY_FAILS_END
-}
 
 //-----------------
 void testEqualStrings(void)
@@ -4183,20 +1837,6 @@ void testNotEqualStringLen_ActualStringIsNull(void)
 {
     EXPECT_ABORT_BEGIN
     TEST_ASSERT_EQUAL_STRING_LEN("foo", NULL, 1);
-    VERIFY_FAILS_END
-}
-
-void testNotEqualString_ExpectedStringIsLonger(void)
-{
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_EQUAL_STRING("foo2", "foo");
-    VERIFY_FAILS_END
-}
-
-void testNotEqualString_ActualStringIsLonger(void)
-{
-    EXPECT_ABORT_BEGIN
-    TEST_ASSERT_EQUAL_STRING("foo", "foo2");
     VERIFY_FAILS_END
 }
 
@@ -5695,35 +3335,14 @@ void putcharSpy(int c)
 #endif
 }
 
-/* This is for counting the calls to the flushSpy */
-static int flushSpyEnabled;
-static int flushSpyCalls = 0;
-
-void startFlushSpy(void) { flushSpyCalls = 0; flushSpyEnabled = 1; }
-void endFlushSpy(void) { flushSpyCalls = 0; flushSpyEnabled = 0; }
-int getFlushSpyCalls(void) { return flushSpyCalls; }
-
-void flushSpy(void)
-{
-    if (flushSpyEnabled){ flushSpyCalls++; }
-}
-
 void testFailureCountIncrementsAndIsReturnedAtEnd(void)
 {
     UNITY_UINT savedFailures = Unity.TestFailures;
     Unity.CurrentTestFailed = 1;
     startPutcharSpy(); // Suppress output
-    startFlushSpy();
-    TEST_ASSERT_EQUAL(0, getFlushSpyCalls());
     UnityConcludeTest();
     endPutcharSpy();
     TEST_ASSERT_EQUAL(savedFailures + 1, Unity.TestFailures);
-#if defined(UNITY_OUTPUT_FLUSH) && defined(UNITY_OUTPUT_FLUSH_HEADER_DECLARATION)
-    TEST_ASSERT_EQUAL(1, getFlushSpyCalls());
-#else
-    TEST_ASSERT_EQUAL(0, getFlushSpyCalls());
-#endif
-    endFlushSpy();
 
     startPutcharSpy(); // Suppress output
     int failures = UnityEnd();
@@ -5752,11 +3371,7 @@ void testHexPrintsUpToMaxNumberOfNibbles(void)
     startPutcharSpy();
     UnityPrintNumberHex(0xBEE, 21);
     endPutcharSpy();
-#ifdef UNITY_SUPPORT_64
-    TEST_ASSERT_EQUAL_INT(16, strlen(getBufferPutcharSpy()));
-#else
-    TEST_ASSERT_EQUAL_INT( 8, strlen(getBufferPutcharSpy()));
-#endif
+    TEST_ASSERT_EQUAL_INT(sizeof(UNITY_INT)*2, strlen(getBufferPutcharSpy()));
 #endif
 }
 
@@ -5796,7 +3411,6 @@ void testPrintNumbersUnsigned32(void)
     TEST_ASSERT_EQUAL_PRINT_UNSIGNED_NUMBERS("4294967295", (UNITY_UINT32)0xFFFFFFFF);
 #endif
 }
-
 
 // ===================== THESE TEST WILL RUN IF YOUR CONFIG INCLUDES 64 BIT SUPPORT ==================
 
@@ -6849,69 +4463,49 @@ void testNotEqualFloatEachEqualLengthZero(void)
 
 void testFloatPrinting(void)
 {
-#if defined(UNITY_EXCLUDE_FLOAT_PRINT) || defined(UNITY_INCLUDE_DOUBLE) || !defined(USING_OUTPUT_SPY)
+#if defined(UNITY_EXCLUDE_FLOAT_PRINT) || !defined(USING_OUTPUT_SPY)
     TEST_IGNORE();
 #else
-    TEST_ASSERT_EQUAL_PRINT_FLOATING("0",            0.0f);
-    TEST_ASSERT_EQUAL_PRINT_FLOATING("4.99e-07",     0.000000499f);
-    TEST_ASSERT_EQUAL_PRINT_FLOATING("0.1004695",    0.100469499f);
-    TEST_ASSERT_EQUAL_PRINT_FLOATING("2",            1.9999995f); /*Rounding to int place*/
-    TEST_ASSERT_EQUAL_PRINT_FLOATING("1",            1.0f);
-    TEST_ASSERT_EQUAL_PRINT_FLOATING("1.25",         1.25f);
-    TEST_ASSERT_EQUAL_PRINT_FLOATING("7.999999",     7.999999f); /*Not rounding*/
-    TEST_ASSERT_EQUAL_PRINT_FLOATING("16.00002",     16.00002f);
-    TEST_ASSERT_EQUAL_PRINT_FLOATING("16.00004",     16.00004f);
-    TEST_ASSERT_EQUAL_PRINT_FLOATING("16.00006",     16.00006f);
-    TEST_ASSERT_EQUAL_PRINT_FLOATING("9999999",      9999999.0f); /*Last full print integer*/
+    TEST_ASSERT_EQUAL_PRINT_FLOATING("0",         0.0f);
+    TEST_ASSERT_EQUAL_PRINT_FLOATING("4.99e-07",  0.000000499f);
+    TEST_ASSERT_EQUAL_PRINT_FLOATING("5e-07",     0.00000050000005f);
+    TEST_ASSERT_EQUAL_PRINT_FLOATING("0.100469",  0.100469499f);
+    TEST_ASSERT_EQUAL_PRINT_FLOATING("1",         0.9999995f); /*Rounding to int place*/
+    TEST_ASSERT_EQUAL_PRINT_FLOATING("1",         1.0f);
+    TEST_ASSERT_EQUAL_PRINT_FLOATING("1.25",      1.25f);
+    TEST_ASSERT_EQUAL_PRINT_FLOATING("7.99999",   7.99999f); /*Not rounding*/
+    TEST_ASSERT_EQUAL_PRINT_FLOATING("16.0002",   16.0002f);
+    TEST_ASSERT_EQUAL_PRINT_FLOATING("16.0004",   16.0004f);
+    TEST_ASSERT_EQUAL_PRINT_FLOATING("16.0006",   16.0006f);
+    TEST_ASSERT_EQUAL_PRINT_FLOATING("999999",    999999.0f); /*Last full print integer*/
 
-    TEST_ASSERT_EQUAL_PRINT_FLOATING("-0",            -0.0f);
-    TEST_ASSERT_EQUAL_PRINT_FLOATING("-4.99e-07",     -0.000000499f);
-    TEST_ASSERT_EQUAL_PRINT_FLOATING("-0.1004695",    -0.100469499f);
-    TEST_ASSERT_EQUAL_PRINT_FLOATING("-2",            -1.9999995f); /*Rounding to int place*/
-    TEST_ASSERT_EQUAL_PRINT_FLOATING("-1",            -1.0f);
-    TEST_ASSERT_EQUAL_PRINT_FLOATING("-1.25",         -1.25f);
-    TEST_ASSERT_EQUAL_PRINT_FLOATING("-7.999999",     -7.999999f); /*Not rounding*/
-    TEST_ASSERT_EQUAL_PRINT_FLOATING("-16.00002",     -16.00002f);
-    TEST_ASSERT_EQUAL_PRINT_FLOATING("-16.00004",     -16.00004f);
-    TEST_ASSERT_EQUAL_PRINT_FLOATING("-16.00006",     -16.00006f);
-    TEST_ASSERT_EQUAL_PRINT_FLOATING("-9999999",      -9999999.0f); /*Last full print integer*/
+    TEST_ASSERT_EQUAL_PRINT_FLOATING("-0",         -0.0f);
+    TEST_ASSERT_EQUAL_PRINT_FLOATING("-4.99e-07",  -0.000000499f);
+    TEST_ASSERT_EQUAL_PRINT_FLOATING("-5e-07",     -0.00000050000005f);
+    TEST_ASSERT_EQUAL_PRINT_FLOATING("-0.100469",  -0.100469499f);
+    TEST_ASSERT_EQUAL_PRINT_FLOATING("-1",         -0.9999995f); /*Rounding to int place*/
+    TEST_ASSERT_EQUAL_PRINT_FLOATING("-1",         -1.0f);
+    TEST_ASSERT_EQUAL_PRINT_FLOATING("-1.25",      -1.25f);
+    TEST_ASSERT_EQUAL_PRINT_FLOATING("-7.99999",   -7.99999f); /*Not rounding*/
+    TEST_ASSERT_EQUAL_PRINT_FLOATING("-16.0002",   -16.0002f);
+    TEST_ASSERT_EQUAL_PRINT_FLOATING("-16.0004",   -16.0004f);
+    TEST_ASSERT_EQUAL_PRINT_FLOATING("-16.0006",   -16.0006f);
+    TEST_ASSERT_EQUAL_PRINT_FLOATING("-999999",    -999999.0f); /*Last full print integer*/
 
-    /* Fails, prints "4.294968e+09" due to FP math imprecision
-     * TEST_ASSERT_EQUAL_PRINT_FLOATING("4.294967e+09",  4294967296.0f); */
-    TEST_ASSERT_EQUAL_PRINT_FLOATING("5e+09",        5000000000.0f);
-    TEST_ASSERT_EQUAL_PRINT_FLOATING("8e+09",        8.0e+09f);
-    TEST_ASSERT_EQUAL_PRINT_FLOATING("8.309999e+09", 8309999104.0f);
-    TEST_ASSERT_EQUAL_PRINT_FLOATING("1e+10",        1.0e+10f);
-    TEST_ASSERT_EQUAL_PRINT_FLOATING("1e+10",        10000000000.0f);
+    TEST_ASSERT_EQUAL_PRINT_FLOATING("4.29497e+09", 4294967296.0f);
+    TEST_ASSERT_EQUAL_PRINT_FLOATING("5e+09",       5000000000.0f);
+    TEST_ASSERT_EQUAL_PRINT_FLOATING("8e+09",       8.0e+09f);
+    TEST_ASSERT_EQUAL_PRINT_FLOATING("8.31e+09",    8309999104.0f);
+    TEST_ASSERT_EQUAL_PRINT_FLOATING("1e+10",       1.0e+10f);
+    TEST_ASSERT_EQUAL_PRINT_FLOATING("1e+10",       10000000000.0f);
     /* Some compilers have trouble with inexact float constants, a float cast works generally */
-    TEST_ASSERT_EQUAL_PRINT_FLOATING("1.000055e+10", (float)1.000055e+10f);
-    TEST_ASSERT_EQUAL_PRINT_FLOATING("1.1e+38",      (float)1.10000005e+38f);
-    TEST_ASSERT_EQUAL_PRINT_FLOATING("1.635299e+10", 1.63529943e+10f);
-    /* Fails, prints "3.402824e+38" due to FP math imprecision
-     * TEST_ASSERT_EQUAL_PRINT_FLOATING("3.402823e+38", 3.40282346638e38f); */
+    TEST_ASSERT_EQUAL_PRINT_FLOATING("1.00005e+10", (float)1.000054e+10f);
+    TEST_ASSERT_EQUAL_PRINT_FLOATING("1.1e+38",     (float)1.10000005e+38f);
+    TEST_ASSERT_EQUAL_PRINT_FLOATING("1.6353e+10",  1.63529943e+10f);
+    TEST_ASSERT_EQUAL_PRINT_FLOATING("3.40282e+38", 3.40282346638e38f);
 
-    TEST_ASSERT_EQUAL_PRINT_FLOATING("-1e+10",        -1.0e+10f);
-    /* Fails, prints "-3.402824e+38" due to FP math imprecision
-     * TEST_ASSERT_EQUAL_PRINT_FLOATING("-3.402823e+38", -3.40282346638e38f); */
-#endif
-}
-
-void testFloatPrintingRoundTiesToEven(void)
-{
-#if defined(UNITY_EXCLUDE_FLOAT_PRINT) || defined(UNITY_INCLUDE_DOUBLE) || !defined(USING_OUTPUT_SPY)
-    TEST_IGNORE();
-#else
-  #ifdef UNITY_ROUND_TIES_AWAY_FROM_ZERO
-    TEST_ASSERT_EQUAL_PRINT_FLOATING("0.0004882813",  0.00048828125f);
-    TEST_ASSERT_EQUAL_PRINT_FLOATING("488281.3",      488281.25f);
-    TEST_ASSERT_EQUAL_PRINT_FLOATING("5.000001e-07",  0.00000050000005f);
-    TEST_ASSERT_EQUAL_PRINT_FLOATING("-5.000001e-07", -0.00000050000005f);
-  #else /* Default to Round ties to even */
-    TEST_ASSERT_EQUAL_PRINT_FLOATING("0.0004882812",  0.00048828125f);
-    TEST_ASSERT_EQUAL_PRINT_FLOATING("488281.2",      488281.25f);
-    TEST_ASSERT_EQUAL_PRINT_FLOATING("5e-07",         0.00000050000005f);
-    TEST_ASSERT_EQUAL_PRINT_FLOATING("-5e-07",        -0.00000050000005f);
-  #endif
+    TEST_ASSERT_EQUAL_PRINT_FLOATING("-1e+10",       -1.0e+10f);
+    TEST_ASSERT_EQUAL_PRINT_FLOATING("-3.40282e+38", -3.40282346638e38f);
 #endif
 }
 
@@ -6928,83 +4522,36 @@ void testFloatPrintingInfinityAndNaN(void)
 }
 
 #if defined(UNITY_TEST_ALL_FLOATS_PRINT_OK) && defined(USING_OUTPUT_SPY)
-#ifdef UNITY_INCLUDE_DOUBLE
-static void printFloatValue(float f)
-{
-    char expected[18];
-
-    startPutcharSpy();
-    UnityPrintFloat(f);
-
-    sprintf(expected, "%.9g", f);
-    /* We print all NaN's as "nan", not "-nan" */
-    if (strcmp(expected, "-nan") == 0) strcpy(expected, "nan");
-
-    if (strcmp(expected, getBufferPutcharSpy()))
-    {
-        /* Fail with diagnostic printing */
-        TEST_ASSERT_EQUAL_PRINT_FLOATING(expected, f);
-    }
-}
-#else
 static void printFloatValue(float f)
 {
     char expected[18];
     char expected_lower[18];
-    char expected_lower2[18];
-    char expected_lower3[18];
     char expected_higher[18];
-    char expected_higher2[18];
-    char expected_higher3[18];
 
     startPutcharSpy();
+
     UnityPrintFloat(f);
 
-    sprintf(expected, "%.7g", f);
+    sprintf(expected, "%.6g", f);
+
     /* We print all NaN's as "nan", not "-nan" */
-    if (strcmp(expected, "-nan") == 0) strcpy(expected, "nan");
+    if(strcmp(expected, "-nan") == 0) strcpy(expected, "nan");
 
-    strcpy(expected_lower, expected);
-    strcpy(expected_lower2, expected);
-    strcpy(expected_lower3, expected);
-    strcpy(expected_higher, expected);
-    strcpy(expected_higher2, expected);
-    strcpy(expected_higher3, expected);
+    /* Allow for rounding differences in last digit */
+    double lower = (double)f * 0.9999995;
+    double higher = (double)f * 1.0000005;
 
-    /* Allow for rounding differences in the last digit */
-    double lower = (double)f * 0.99999995;
-    double higher = (double)f * 1.00000005;
-
-    if(isfinite(lower)) sprintf(expected_lower, "%.7g", lower);
-    if(isfinite(higher)) sprintf(expected_higher, "%.7g", higher);
-
-    /* Outside [1,10000000] allow for relative error of +/-2.5e-7 */
-    if (f < 1.0 || f > 10000000)
-    {
-        double lower2 = (double)f * 0.99999985;
-        double lower3 = (double)f * 0.99999975;
-        double higher2 = (double)f * 1.00000015;
-        double higher3 = (double)f * 1.00000025;
-
-        if (isfinite(lower2)) sprintf(expected_lower2, "%.7g", lower2);
-        if (isfinite(lower3)) sprintf(expected_lower3, "%.7g", lower3);
-        if (isfinite(higher2)) sprintf(expected_higher2, "%.7g", higher2);
-        if (isfinite(higher3)) sprintf(expected_higher3, "%.7g", higher3);
-    }
+    if (isfinite(lower)) sprintf(expected_lower, "%.6g", lower); else strcpy(expected_lower, expected);
+    if (isfinite(higher)) sprintf(expected_higher, "%.6g", higher); else strcpy(expected_higher, expected);
 
     if (strcmp(expected, getBufferPutcharSpy()) != 0 &&
         strcmp(expected_lower, getBufferPutcharSpy()) != 0 &&
-        strcmp(expected_lower2, getBufferPutcharSpy()) != 0 &&
-        strcmp(expected_lower3, getBufferPutcharSpy()) != 0 &&
-        strcmp(expected_higher, getBufferPutcharSpy()) != 0 &&
-        strcmp(expected_higher2, getBufferPutcharSpy()) != 0 &&
-        strcmp(expected_higher3, getBufferPutcharSpy()) != 0)
+        strcmp(expected_higher, getBufferPutcharSpy()) != 0)
     {
         /* Fail with diagnostic printing */
         TEST_ASSERT_EQUAL_PRINT_FLOATING(expected, f);
     }
 }
-#endif
 #endif
 
 void testFloatPrintingRandomSamples(void)
@@ -7705,60 +5252,20 @@ void testDoublePrinting(void)
 #if defined(UNITY_EXCLUDE_FLOAT_PRINT) || defined(UNITY_EXCLUDE_DOUBLE) || !defined(USING_OUTPUT_SPY)
     TEST_IGNORE();
 #else
-    TEST_ASSERT_EQUAL_PRINT_FLOATING("0",             0.0);
-    TEST_ASSERT_EQUAL_PRINT_FLOATING("4.99e-07",      0.000000499);
-    TEST_ASSERT_EQUAL_PRINT_FLOATING("5.0000005e-07", 0.00000050000005);
-    TEST_ASSERT_EQUAL_PRINT_FLOATING("0.100469499",   0.100469499);
-    TEST_ASSERT_EQUAL_PRINT_FLOATING("1",             0.9999999995); /*Rounding to int place*/
-    TEST_ASSERT_EQUAL_PRINT_FLOATING("1",             1.0);
-    TEST_ASSERT_EQUAL_PRINT_FLOATING("1.25",          1.25);
-    TEST_ASSERT_EQUAL_PRINT_FLOATING("7.99999999",    7.99999999); /*Not rounding*/
-    TEST_ASSERT_EQUAL_PRINT_FLOATING("16.0000002",    16.0000002);
-    TEST_ASSERT_EQUAL_PRINT_FLOATING("16.0000004",    16.0000004);
-    TEST_ASSERT_EQUAL_PRINT_FLOATING("16.0000006",    16.0000006);
-    TEST_ASSERT_EQUAL_PRINT_FLOATING("999999999",     999999999.0); /*Last full print integer*/
+    TEST_ASSERT_EQUAL_PRINT_FLOATING("0.100469",     0.10046949999999999);
+    TEST_ASSERT_EQUAL_PRINT_FLOATING("4.29497e+09",  4294967295.999999);
+    TEST_ASSERT_EQUAL_PRINT_FLOATING("4.29497e+09",  4294967295.9999995);
+    TEST_ASSERT_EQUAL_PRINT_FLOATING("4.29497e+09",  4294967296.0);
+    TEST_ASSERT_EQUAL_PRINT_FLOATING("1e+10",        9999999995.0);
+    TEST_ASSERT_EQUAL_PRINT_FLOATING("9.0072e+15",   9007199254740990.0);
+    TEST_ASSERT_EQUAL_PRINT_FLOATING("7e+100",       7.0e+100);
+    TEST_ASSERT_EQUAL_PRINT_FLOATING("3e+200",       3.0e+200);
+    TEST_ASSERT_EQUAL_PRINT_FLOATING("9.23457e+300", 9.23456789e+300);
 
-    TEST_ASSERT_EQUAL_PRINT_FLOATING("-0",             -0.0);
-    TEST_ASSERT_EQUAL_PRINT_FLOATING("-4.99e-07",      -0.000000499);
-    TEST_ASSERT_EQUAL_PRINT_FLOATING("-5.0000005e-07", -0.00000050000005);
-    TEST_ASSERT_EQUAL_PRINT_FLOATING("-0.100469499",   -0.100469499);
-    TEST_ASSERT_EQUAL_PRINT_FLOATING("-1",             -0.9999999995); /*Rounding to int place*/
-    TEST_ASSERT_EQUAL_PRINT_FLOATING("-1",             -1.0);
-    TEST_ASSERT_EQUAL_PRINT_FLOATING("-1.25",          -1.25);
-    TEST_ASSERT_EQUAL_PRINT_FLOATING("-7.99999999",    -7.99999999); /*Not rounding*/
-    TEST_ASSERT_EQUAL_PRINT_FLOATING("-16.0000002",    -16.0000002);
-    TEST_ASSERT_EQUAL_PRINT_FLOATING("-16.0000004",    -16.0000004);
-    TEST_ASSERT_EQUAL_PRINT_FLOATING("-16.0000006",    -16.0000006);
-    TEST_ASSERT_EQUAL_PRINT_FLOATING("-999999999",     -999999999.0); /*Last full print integer*/
-
-    TEST_ASSERT_EQUAL_PRINT_FLOATING("0.1004695",       0.10046949999999999);
-    TEST_ASSERT_EQUAL_PRINT_FLOATING("4.2949673e+09",   4294967295.9);
-    TEST_ASSERT_EQUAL_PRINT_FLOATING("4.2949673e+09",   4294967296.0);
-    TEST_ASSERT_EQUAL_PRINT_FLOATING("1e+10",           9999999995.0);
-    TEST_ASSERT_EQUAL_PRINT_FLOATING("9.00719925e+15",  9007199254740990.0);
-    TEST_ASSERT_EQUAL_PRINT_FLOATING("7e+100",          7.0e+100);
-    TEST_ASSERT_EQUAL_PRINT_FLOATING("3e+200",          3.0e+200);
-    TEST_ASSERT_EQUAL_PRINT_FLOATING("9.23456789e+300", 9.23456789e+300);
-
-    TEST_ASSERT_EQUAL_PRINT_FLOATING("-0.1004695",     -0.10046949999999999);
-    TEST_ASSERT_EQUAL_PRINT_FLOATING("-4.2949673e+09", -4294967295.9);
-    TEST_ASSERT_EQUAL_PRINT_FLOATING("-4.2949673e+09", -4294967296.0);
-    TEST_ASSERT_EQUAL_PRINT_FLOATING("-7e+100",        -7.0e+100);
-#endif
-}
-
-void testDoublePrintingRoundTiesToEven(void)
-{
-#if defined(UNITY_EXCLUDE_FLOAT_PRINT) || defined(UNITY_EXCLUDE_DOUBLE) || !defined(USING_OUTPUT_SPY)
-    TEST_IGNORE();
-#else
-  #ifdef UNITY_ROUND_TIES_AWAY_FROM_ZERO
-    TEST_ASSERT_EQUAL_PRINT_FLOATING("1.00000001e+10", 10000000050.0);
-    TEST_ASSERT_EQUAL_PRINT_FLOATING("9.00719925e+15", 9007199245000000.0);
-  #else /* Default to Round ties to even */
-    TEST_ASSERT_EQUAL_PRINT_FLOATING("1e+10",          10000000050.0);
-    TEST_ASSERT_EQUAL_PRINT_FLOATING("9.00719924e+15", 9007199245000000.0);
-  #endif
+    TEST_ASSERT_EQUAL_PRINT_FLOATING("-0.100469",    -0.10046949999999999);
+    TEST_ASSERT_EQUAL_PRINT_FLOATING("-4.29497e+09", -4294967295.999999);
+    TEST_ASSERT_EQUAL_PRINT_FLOATING("-4.29497e+09", -4294967295.9999995);
+    TEST_ASSERT_EQUAL_PRINT_FLOATING("-7e+100",      -7.0e+100);
 #endif
 }
 

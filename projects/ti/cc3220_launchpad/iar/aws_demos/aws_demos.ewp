@@ -386,7 +386,7 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\mbedtls</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\tinycbor</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\http_parser</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\http-parser</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\jsmn</state>
 				</option>
 				<option>
@@ -1646,7 +1646,7 @@
 					<group>
 						<name>include</name>
 						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\include\aws_iot_ota_agent.h</name>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\include\aws_ota_agent.h</name>
 						</file>
 						<file>
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\include\aws_ota_types.h</name>
@@ -2363,12 +2363,12 @@
 				</file>
 			</group>
 			<group>
-				<name>http_parser</name>
+				<name>http-parser</name>
 				<file>
-					<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\http_parser\http_parser.h</name>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\http-parser\http_parser.h</name>
 				</file>
 				<file>
-					<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\http_parser\http_parser.c</name>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\http-parser\http_parser.c</name>
 				</file>
 			</group>
 			<group>
@@ -2475,12 +2475,6 @@
 			</file>
 			<file>
 				<name>$PROJ_DIR$\..\..\..\..\..\demos\https\iot_demo_https_s3_download_async.c</name>
-			</file>
-			<file>
-				<name>$PROJ_DIR$\..\..\..\..\..\demos\https\iot_demo_https_s3_upload_sync.c</name>
-			</file>
-			<file>
-				<name>$PROJ_DIR$\..\..\..\..\..\demos\https\iot_demo_https_s3_upload_async.c</name>
 			</file>
 			<file>
 				<name>$PROJ_DIR$\..\..\..\..\..\demos\https\iot_demo_https_common.c</name>

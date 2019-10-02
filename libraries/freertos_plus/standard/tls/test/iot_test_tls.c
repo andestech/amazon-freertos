@@ -82,6 +82,7 @@ TEST_GROUP_RUNNER( Full_TLS )
 {
     RUN_TEST_CASE( Full_TLS, AFQP_TLS_ConnectEC );
     RUN_TEST_CASE( Full_TLS, AFQP_TLS_ConnectRSA );
+    RUN_TEST_CASE( Full_TLS, AFQP_TLS_ConnectEC );
     RUN_TEST_CASE( Full_TLS, AFQP_TLS_ConnectMalformedCert );
     RUN_TEST_CASE( Full_TLS, AFQP_TLS_ConnectUntrustedCert );
     RUN_TEST_CASE( Full_TLS, AFQP_TLS_ConnectBYOCCredentials );
@@ -308,7 +309,7 @@ TEST( Full_TLS, AFQP_TLS_ConnectEC )
     xParams.ulClientPrivateKeyLength = tlstestCLIENT_PRIVATE_KEY_LENGTH_EC;
     xParams.pucClientCertificate = ( uint8_t * ) tlstestCLIENT_CERTIFICATE_PEM_EC;
     xParams.ulClientCertificateLength = tlstestCLIENT_CERTIFICATE_LENGTH_EC;
-    xParams.ulJITPCertificateLength = 0; /* Do not provision JITP certificate. */
+    xParams.ulJITPCertifiateLength = 0; /* Do not provision JITP certificate. */
     xParams.pucJITPCertificate = NULL;
 
     prvConnectWithProvisioning( &( xParams ),
@@ -326,7 +327,7 @@ TEST( Full_TLS, AFQP_TLS_ConnectMalformedCert )
     xParams.ulClientPrivateKeyLength = 1 + strlen( ( const char * ) xParams.pucClientPrivateKey );
     xParams.pucClientCertificate = ( uint8_t * ) tlstestCLIENT_CERTIFICATE_PEM_MALFORMED;
     xParams.ulClientCertificateLength = tlstestCLIENT_CERTIFICATE_PEM_MALFORMED_LENGTH;
-    xParams.ulJITPCertificateLength = 0; /* Do not provision JITP certificate. */
+    xParams.ulJITPCertifiateLength = 0; /* Do not provision JITP certificate. */
     xParams.pucJITPCertificate = NULL;
 
     prvExpectFailAfterDataSentWithProvisioning( &( xParams ) );
@@ -342,7 +343,7 @@ TEST( Full_TLS, AFQP_TLS_ConnectUntrustedCert )
     xParams.ulClientPrivateKeyLength = tlstestCLIENT_UNTRUSTED_PRIVATE_KEY_PEM_LENGTH;
     xParams.pucClientCertificate = ( uint8_t * ) tlstestCLIENT_UNTRUSTED_CERTIFICATE_PEM;
     xParams.ulClientCertificateLength = tlstestCLIENT_UNTRUSTED_CERTIFICATE_PEM_LENGTH;
-    xParams.ulJITPCertificateLength = 0; /* Do not provision JITP certificate. */
+    xParams.ulJITPCertifiateLength = 0; /* Do not provision JITP certificate. */
     xParams.pucJITPCertificate = NULL;
 
     prvExpectFailAfterDataSentWithProvisioning( &( xParams ) );
@@ -358,7 +359,7 @@ TEST( Full_TLS, AFQP_TLS_ConnectBYOCCredentials )
     xParams.ulClientPrivateKeyLength = tlstestCLIENT_BYOC_PRIVATE_KEY_PEM_LENGTH;
     xParams.pucClientCertificate = ( uint8_t * ) tlstestCLIENT_BYOC_CERTIFICATE_PEM;
     xParams.ulClientCertificateLength = tlstestCLIENT_BYOC_CERTIFICATE_PEM_LENGTH;
-    xParams.ulJITPCertificateLength = 0; /* Do not provision JITP certificate. */
+    xParams.ulJITPCertifiateLength = 0; /* Do not provision JITP certificate. */
     xParams.pucJITPCertificate = NULL;
 
     prvConnectWithProvisioning( &( xParams ),

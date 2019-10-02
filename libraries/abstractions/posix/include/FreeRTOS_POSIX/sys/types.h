@@ -40,7 +40,6 @@
 #include "FreeRTOS_POSIX_types.h"
 
 /**
- * @ingroup posix_datatypes_handles
  * @brief Used for system times in clock ticks or CLOCKS_PER_SEC.
  *
  * Enabled/disabled by posixconfigENABLE_CLOCK_T.
@@ -50,7 +49,6 @@
 #endif
 
 /**
- * @ingroup posix_datatypes_handles
  * @brief Used for clock ID type in the clock and timer functions.
  *
  * Enabled/disabled by posixconfigENABLE_CLOCKID_T.
@@ -60,7 +58,6 @@
 #endif
 
 /**
- * @ingroup posix_datatypes_handles
  * @brief Used for some file attributes.
  *
  * Enabled/disabled by posixconfigENABLE_MODE_T.
@@ -70,7 +67,6 @@
 #endif
 
 /**
- * @ingroup posix_datatypes_handles
  * @brief Used for process IDs and process group IDs.
  *
  * Enabled/disabled by posixconfigENABLE_PID_T.
@@ -80,7 +76,6 @@
 #endif
 
 /**
- * @ingroup posix_datatypes_handles
  * @brief Used to identify a thread attribute object.
  *
  * Enabled/disabled by posixconfigENABLE_PTHREAD_ATTR_T.
@@ -90,7 +85,6 @@
 #endif
 
 /**
- * @ingroup posix_datatypes_handles
  * @brief Used to identify a barrier.
  *
  * Enabled/disabled by posixconfigENABLE_PTHREAD_BARRIER_T.
@@ -100,13 +94,11 @@
 #endif
 
 /**
- * @ingroup posix_datatypes_handles
  * @brief Used to define a barrier attributes object.
  */
 typedef void                         * pthread_barrierattr_t;
 
 /**
- * @ingroup posix_datatypes_handles
  * @brief Used for condition variables.
  *
  * Enabled/disabled by posixconfigENABLE_PTHREAD_COND_T.
@@ -116,7 +108,6 @@ typedef void                         * pthread_barrierattr_t;
 #endif
 
 /**
- * @ingroup posix_datatypes_handles
  * @brief Used to identify a condition attribute object.
  *
  * Enabled/disabled by posixconfigENABLE_PTHREAD_CONDATTR_T.
@@ -126,7 +117,6 @@ typedef void                         * pthread_barrierattr_t;
 #endif
 
 /**
- * @ingroup posix_datatypes_handles
  * @brief Used for mutexes.
  *
  * Enabled/disabled by posixconfigENABLE_PTHREAD_MUTEX_T.
@@ -136,7 +126,6 @@ typedef void                         * pthread_barrierattr_t;
 #endif
 
 /**
- * @ingroup posix_datatypes_handles
  * @brief Used to identify a mutex attribute object.
  *
  * Enabled/disabled by posixconfigENABLE_PTHREAD_MUTEXATTR_T.
@@ -146,7 +135,6 @@ typedef void                         * pthread_barrierattr_t;
 #endif
 
 /**
- * @ingroup posix_datatypes_handles
  * @brief Used to identify a thread.
  *
  * Enabled/disabled by posixconfigENABLE_PTHREAD_T.
@@ -156,7 +144,6 @@ typedef void                         * pthread_barrierattr_t;
 #endif
 
 /**
- * @ingroup posix_datatypes_handles
  * @brief Used for a count of bytes or an error indication.
  *
  * Enabled/disabled by posixconfigENABLE_SSIZE_T.
@@ -166,7 +153,6 @@ typedef void                         * pthread_barrierattr_t;
 #endif
 
 /**
- * @ingroup posix_datatypes_handles
  * @brief Used for time in seconds.
  *
  * Enabled/disabled by posixconfigENABLE_TIME_T.
@@ -176,7 +162,6 @@ typedef void                         * pthread_barrierattr_t;
 #endif
 
 /**
- * @ingroup posix_datatypes_handles
  * @brief Used for timer ID returned by timer_create().
  *
  * Enabled/disabled by posixconfigENABLE_TIMER_T.
@@ -186,7 +171,6 @@ typedef void                         * pthread_barrierattr_t;
 #endif
 
 /**
- * @ingroup posix_datatypes_handles
  * @brief Used for time in microseconds.
  *
  * Enabled/disabled by posixconfigENABLE_USECONDS_T.
@@ -196,7 +180,6 @@ typedef void                         * pthread_barrierattr_t;
 #endif
 
 /**
- * @ingroup posix_datatypes_handles
  * @brief Used for file sizes.
  *
  * Enabled/disabled by posixconfigENABLE_OFF_T.

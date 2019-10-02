@@ -36,7 +36,6 @@
 #include "FreeRTOS.h"
 #include "iot_ble_wifi_provisioning.h"
 #include "iot_ble_wifi_prov_test_access_declare.h"
-#include "iot_ble_data_transfer.h"
 #include "aws_clientcredential.h"
 /* Test framework includes. */
 #include "unity_fixture.h"
@@ -60,50 +59,17 @@ TEST_GROUP( Full_WiFi_Provisioning );
 
 /*-----------------------------------------------------------*/
 
-#include "bt_hal_manager_types.h"
-static bool bleInitialized = false;
-static bool iotBleInitialized = false;
-static bool iotBleWifiProvisioningInitialized = false;
-extern BTStatus_t bleStackInit( void );
-
-static bool bleInit()
-{
-    if( !bleInitialized )
-    {
-        bleInitialized = ( eBTStatusSuccess == bleStackInit() );
-    }
-
-    if( bleInitialized && !iotBleInitialized )
-    {
-        iotBleInitialized = ( eBTStatusSuccess == IotBle_Init() );
-    }
-
-    return iotBleInitialized;
-}
-
-/*-----------------------------------------------------------*/
-
 TEST_SETUP( Full_WiFi_Provisioning )
 {
-    if( bleInit() )
-    {
-        iotBleWifiProvisioningInitialized = IotBleWifiProv_Init();
-    }
-
-    TEST_ASSERT_EQUAL( bleInitialized, true );
-    TEST_ASSERT_EQUAL( iotBleInitialized, true );
-    TEST_ASSERT_EQUAL( iotBleWifiProvisioningInitialized, true );
+    IotBleWifiProv_Init();
 }
 
 /*-----------------------------------------------------------*/
 
 TEST_TEAR_DOWN( Full_WiFi_Provisioning )
 {
-    if( iotBleWifiProvisioningInitialized )
-    {
-        IotBleWifiProv_Deinit();
-        prvRemoveSavedNetworks();
-    }
+    IotBleWifiProv_Deinit();
+    prvRemoveSavedNetworks();
 }
 
 
@@ -136,7 +102,7 @@ TEST( Full_WiFi_Provisioning, WIFI_PROVISION_AddNetwork )
     if( TEST_PROTECT() )
     {
         prvGetRealWIFINetwork( &xNetwork );
-        xStatus = test_AddNewNetwork( &xNetwork, true );
+        xStatus = test_AddNewNetwork( &xNetwork );
 
         TEST_ASSERT_EQUAL( eWiFiSuccess, xStatus );
         /* Verify that the network is connected */
@@ -192,7 +158,7 @@ TEST( Full_WiFi_Provisioning, WIFI_PROVISION_DeleteNetwork )
     if( TEST_PROTECT() )
     {
         /* Add the new network */
-        xStatus = test_AddNewNetwork( &xNetwork, true );
+        xStatus = test_AddNewNetwork( &xNetwork );
         TEST_ASSERT_EQUAL( eWiFiSuccess, xStatus );
         /* Verify that network is added */
         TEST_ASSERT_EQUAL( eWiFiSuccess, WIFI_NetworkGet( &xNetwork, 0 ) );
@@ -294,7 +260,7 @@ TEST( Full_WiFi_Provisioning, WIFI_PROVISION_ChangeConnectedNetworkPriority )
 
         /* Add real network */
         prvGetRealWIFINetwork( &xNetwork );
-        xStatus = test_AddNewNetwork( &xNetwork, true );
+        xStatus = test_AddNewNetwork( &xNetwork );
 
 
         TEST_ASSERT_EQUAL( eWiFiSuccess, xStatus );
@@ -333,7 +299,7 @@ TEST( Full_WiFi_Provisioning, WIFI_PROVISION_DeleteConnectedNetwork )
     {
         /* Add real network */
         prvGetRealWIFINetwork( &xNetwork );
-        xStatus = test_AddNewNetwork( &xNetwork, true );
+        xStatus = test_AddNewNetwork( &xNetwork );
         TEST_ASSERT_EQUAL( eWiFiSuccess, xStatus );
         TEST_ASSERT_EQUAL( pdTRUE, WIFI_IsConnected() );
 

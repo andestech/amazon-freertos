@@ -44,8 +44,6 @@
     #define NULL_PTR    0
 #endif
 
-/* CK_DEFINE_FUNCTION is deprecated.  Implementations should use CK_DECLARE_FUNCTION
- * instead when possible. */
 #define CK_DEFINE_FUNCTION( returnType, name )             returnType name
 #define CK_DECLARE_FUNCTION( returnType, name )            returnType name
 #define CK_DECLARE_FUNCTION_POINTER( returnType, name )    returnType( CK_PTR name )
@@ -62,11 +60,6 @@
  * by a 32-bit S value, and not ASN.1 encoded.
  */
 #define pkcs11ECDSA_P256_SIGNATURE_LENGTH    64
-
-/**
- * @brief Key strength for elliptic-curve P-256.
- */
-#define pkcs11ECDSA_P256_KEY_BITS            256
 
 /**
  * @brief Public exponent for RSA.

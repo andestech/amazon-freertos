@@ -13,10 +13,7 @@ TEST_FILE("some_file.c")
 
 /* Support for Meta Test Rig */
 #define TEST_CASE(a)
-
-/* Include Passthroughs for Linking Tests */
-void putcharSpy(int c) { (void)putchar(c);}
-void flushSpy(void) {}
+void putcharSpy(int c) { (void)putchar(c);} // include passthrough for linking tests
 
 /* Global Variables Used During These Tests */
 int CounterSetup = 0;

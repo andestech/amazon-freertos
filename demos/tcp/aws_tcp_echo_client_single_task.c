@@ -199,11 +199,9 @@ static void prvEchoClientTask( void * pvParameters )
     TickType_t xTimeOnEntering;
 
     #if ( ipconfigUSE_TCP_WIN == 1 )
-        WinProperties_t xWinProps;
-    #endif
-
-    #if ( ipconfigUSE_TCP_WIN == 1 )
         {
+            WinProperties_t xWinProps;
+
             /* Fill in the buffer and window sizes that will be used by the socket. */
             xWinProps.lTxBufSize = ipconfigTCP_TX_BUFFER_LENGTH;
             xWinProps.lTxWinSize = configECHO_CLIENT_TX_WINDOW_SIZE;
@@ -325,7 +323,7 @@ static void prvEchoClientTask( void * pvParameters )
                 /* If an error occurred it will be latched in xReceivedBytes,
                  * otherwise xReceived bytes will be just that - the number of
                  * bytes received from the echo server. */
-                if( xReceivedBytes == xTransmitted )
+                if( xReceivedBytes > 0 )
                 {
                     /* Compare the transmitted string to the received string. */
                     configASSERT( strncmp( pcReceivedString, pcTransmittedString, xTransmitted ) == 0 );
@@ -345,18 +343,13 @@ static void prvEchoClientTask( void * pvParameters )
                         break;
                     }
                 }
-                else if( xReceivedBytes == -pdFREERTOS_ERRNO_ENOTCONN )
+                else if( xReceivedBytes < 0 )
                 {
-                    /* The connection got closed. */
+                    /* SOCKETS_Recv() returned an error. */
                     break;
                 }
                 else
                 {
-                    /* The received length did not match the transmitted
-                     * length. */
-                    ulTxRxFailures[ xInstance ]++;
-                    configPRINTF( ( "ERROR: xTransmitted %d xReceivedBytes %d \r\n",
-                                    ( int ) xTransmitted, ( int ) xReceivedBytes ) );
                     /* Timed out without receiving anything? */
                     break;
                 }

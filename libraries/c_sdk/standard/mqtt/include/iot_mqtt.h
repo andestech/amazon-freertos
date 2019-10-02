@@ -40,8 +40,8 @@
 /*------------------------- MQTT library functions --------------------------*/
 
 /**
- * @functions_page{mqtt, MQTT}
- * @functions_brief{mqtt}
+ * @functions_page{MQTT, MQTT}
+ * @functions_brief{MQTT}
  * - @function_name{mqtt_function_init}
  * @function_brief{mqtt_function_init}
  * - @function_name{mqtt_function_cleanup}
@@ -256,13 +256,13 @@ void IotMqtt_ReceiveCallback( void * pNetworkConnection,
  *
  * // Example network abstraction types.
  * IotNetworkServerInfo_t serverInfo = { ... };
- * IotNetworkCredentials_t credentialInfo = { ... };
+ * IotNetworkCredentialInfo_t credentialInfo = { ... };
  * IotNetworkInterface_t networkInterface = { ... };
  *
  * // Example using a generic network implementation.
  * networkInfo.createNetworkConnection = true;
- * networkInfo.u.setup.pNetworkServerInfo = &serverInfo;
- * networkInfo.u.setup.pNetworkCredentialInfo = &credentialInfo;
+ * networkInfo.pNetworkServerInfo = &serverInfo;
+ * networkInfo.pNetworkCredentialInfo = &credentialInfo;
  * networkInfo.pNetworkInterface = &networkInterface;
  *
  * // Set the members of the connection info (password and username not used).

@@ -49,7 +49,6 @@ BaseType_t OTA_CBOR_Encode_GetStreamRequestMessage( uint8_t * pucMessageBuffer,
                                                     int32_t lBlockSize,
                                                     int32_t lBlockOffset,
                                                     uint8_t * pucBlockBitmap,
-                                                    size_t xBlockBitmapSize,
-                                                    int32_t lNumOfBlocksRequested );
+                                                    size_t xBlockBitmapSize );
 
 #endif /* ifndef __AWS_OTACBOR__H__ */
