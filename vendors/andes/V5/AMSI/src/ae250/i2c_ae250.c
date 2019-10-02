@@ -3,7 +3,7 @@
  * All rights reserved.
  *
  */
-#include <stdio.h>
+
 #include "i2c_ae250.h"
 #include "RTE_Device.h"
 
@@ -12,6 +12,7 @@
 #if ((!RTE_I2C0))
 	#error "I2C not enabled in RTE_Device.h!"
 #endif
+
 // Driver Version
 static const NDS_DRIVER_VERSION DriverVersion = {
 	NDS_I2C_API_VERSION,
@@ -737,7 +738,6 @@ void i2c_cmpl_handler(I2C_RESOURCES* i2c) {
 
 			// clear busy bit on i2c complete event as master dma/cpu tx
 			i2c->info->Status.busy = 0;
-			//printf("TX complete\n");
 		}
 
 		if (i2c->info->Driver_State & I2C_DRV_MASTER_RX) {
@@ -749,7 +749,7 @@ void i2c_cmpl_handler(I2C_RESOURCES* i2c) {
 				i2c->info->Driver_State = I2C_DRV_MASTER_RX_CMPL;
 
 				// clear busy bit on dma complete event as master dma rx
-				//i2c->info->Status.busy = 0;
+				// i2c->info->Status.busy = 0;
 			} else {
 				i2cx_master_fifo_read(i2c);
 
@@ -760,7 +760,6 @@ void i2c_cmpl_handler(I2C_RESOURCES* i2c) {
 
 				// clear busy bit on i2c complete event as master cpu rx
 				i2c->info->Status.busy = 0;
-				//printf("CPU RX complete\n");
 			}
 		}
 	}
@@ -1126,8 +1125,6 @@ void i2cx_slave_addr_hit_handler(I2C_RESOURCES* i2c) {
 }
 
 void i2c_irq_handler() {
-
-	//printf("irq_handler\n");
 	I2C_RESOURCES* i2c = &I2C0_Resources;
 	uint32_t Tmp_S = 0, Tmp_S1 = 0, Tmp_W = 0, Tmp_C = 0, Evt_Id = 0;
 

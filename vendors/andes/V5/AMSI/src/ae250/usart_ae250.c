@@ -1230,7 +1230,10 @@ static int32_t usart0_set_modem_control (NDS_USART_MODEM_CONTROL control) {
 static NDS_USART_MODEM_STATUS usart0_get_modem_status (void) {
 	return usart_get_modem_status (&usart0_resources);
 }
-void uart0_irq_handler (void) {
+
+/*--------*/
+#define UART0_irq_handler	uart1_irq_handler
+void UART0_irq_handler (void) {
 	usart_irq_handler (&usart0_resources);
 }
 
@@ -1308,7 +1311,10 @@ static int32_t usart1_set_modem_control (NDS_USART_MODEM_CONTROL control) {
 static NDS_USART_MODEM_STATUS usart1_get_modem_status (void) {
 	return usart_get_modem_status (&usart1_resources);
 }
-void uart1_irq_handler (void) {
+
+/*--------*/
+#define UART1_irq_handler	uart2_irq_handler
+void UART1_irq_handler (void) {
 	usart_irq_handler (&usart1_resources);
 }
 
