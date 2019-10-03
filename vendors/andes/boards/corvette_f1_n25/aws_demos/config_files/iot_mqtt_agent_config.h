@@ -24,7 +24,7 @@
  */
 
 /**
- * @file aws_mqtt_agent_config.h
+ * @file iot_mqtt_agent_config.h
  * @brief MQTT agent config options.
  */
 
