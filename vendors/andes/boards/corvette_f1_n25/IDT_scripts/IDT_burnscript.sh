@@ -1,0 +1,1 @@
+target_burn_frontend --erase-all --verify -P 4444 --unlock --image=/home/kevin/amazon-freertos/vendors/andes/boards/corvette_f1_n25/aws_tests/aws_tests.bin --algorithm-bin=/home/kevin/amazon-freertos/vendors/andes/tools/target_bin/target_SPI_v5_32.bin
