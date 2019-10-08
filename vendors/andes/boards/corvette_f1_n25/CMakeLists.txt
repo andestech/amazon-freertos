@@ -18,7 +18,7 @@ endif()
 # Amazon FreeRTOS Console metadata
 # -------------------------------------------------------------------------------------------------
 afr_set_board_metadata(ID "Corvette-F1 N25")
-afr_set_board_metadata(DISPLAY_NAME "CF1")
+afr_set_board_metadata(DISPLAY_NAME "Corvette-F1 N25")
 afr_set_board_metadata(DESCRIPTION "Development kit for Corvette-F1 N25")
 afr_set_board_metadata(VENDOR_NAME "Andes")
 afr_set_board_metadata(FAMILY_NAME "AE250")
