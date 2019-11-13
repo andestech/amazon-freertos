@@ -152,7 +152,7 @@ void WDRV_UsecDelay(uint32_t uSec)
         xUnblockPeriod = 1;
     }
 
-    vTaskDelay(xUnblockPeriod * portTICK_PERIOD_MS);
+    vTaskDelay(xUnblockPeriod / portTICK_PERIOD_MS);
 
     return;
 }
