@@ -54,7 +54,7 @@ extern uint32_t SystemCoreClock;
 
 #define configCPU_CLOCK_HZ				(60000000UL )
 #define configUSE_TICKLESS_IDLE				0
-#define configTICK_RATE_HZ				( ( TickType_t ) 1000 )
+#define configTICK_RATE_HZ				( ( TickType_t ) 500 )
 #define configUSE_PREEMPTION				1
 #define configMAX_PRIORITIES				( 7 )
 #ifdef CFG_SIMU
