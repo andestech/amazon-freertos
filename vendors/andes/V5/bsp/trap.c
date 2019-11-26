@@ -93,3 +93,23 @@ void trap_handler(unsigned long mcause, SAVED_CONTEXT *context)
 		context->mepc = except_handler(mcause, context->mepc, context->caller_regs);
 	}
 }
+
+/*
+ * The portasmHANDLE_INTERRUPT is defined to FreeRTOS_IRQ_handler() to provide handling
+ * external interrupts. Since we don't have CLINT, we also handle machine timer and software
+ * interrupts.
+ */
+__attribute__((naked)) void FreeRTOS_IRQ_handler(unsigned long mcause)
+{
+	if ((mcause & MCAUSE_INT) && ((mcause & MCAUSE_CAUSE) == IRQ_M_TIMER)) {
+		__asm volatile( "tail FreeRTOS_tick_handler" );
+	} else if ((mcause & MCAUSE_INT) && ((mcause & MCAUSE_CAUSE) == IRQ_M_EXT)) {
+		__asm volatile( "tail mext_interrupt" );
+	} else if ((mcause & MCAUSE_INT) && ((mcause & MCAUSE_CAUSE) == IRQ_M_SOFT)) {
+		__asm volatile( "tail mswi_handler" );
+	}
+
+	while (1) {
+		__asm volatile( "ebreak" );
+	}
+}

@@ -111,7 +111,6 @@ target_sources(
 	"${AFR_KERNEL_DIR}/portable/GCC/RISC-V/portASM.S"
 	"${AFR_KERNEL_DIR}/portable/MemMang/heap_4.c"
 
-	"${v5_source}/FreeRTOS_asm_interrupt.S"
 	"${v5_source}/FreeRTOS_tick_config.c"
         "${bsp_dir}/reset.c"
         "${bsp_dir}/initfini.c"
