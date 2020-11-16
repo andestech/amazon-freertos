@@ -24,16 +24,23 @@
 #define SPI_SLAVE                     (1UL << 2)
 #define SPI_LSB                       (1UL << 3)
 #define SPI_MERGE                     (1UL << 7)
+#define DATA_BITS_MSK                 (0x1f << 8)
 #define DATA_BITS(data_bits)          ((data_bits - 1) << 8)
 
 /* SPI transfer control register */
 #define SPI_TRANSCTRL_SLV_DATA_ONLY   (0x1 << 31)
+#define SPI_TRANSCTRL_CMDEN           (0x1 << 30)
+#define SPI_TRANSCTRL_ADDREN          (0x1 << 29)
+#define SPI_TRANSCTRL_ADDRFMT         (0x1 << 28)
 
 // RD/WR transfer count
+#define RD_TRANCNT_MSK                (0x1ff << 0)
 #define RD_TRANCNT(num)               ((num - 1) << 0)
+#define WR_TRANCNT_MSK                (0x1ff << 12)
 #define WR_TRANCNT(num)               ((num - 1) << 12)
 
 // SPI transfer mode
+#define SPI_TRANSMODE_MSK             (0xf << 24)
 #define SPI_TRANSMODE_WRnRD           (0x0 << 24)
 #define SPI_TRANSMODE_WRONLY          (0x1 << 24)
 #define SPI_TRANSMODE_RDONLY          (0x2 << 24)
@@ -67,6 +74,12 @@
 #define SPI_TXFIFOINT                 (1UL << 3)
 #define SPI_ENDINT                    (1UL << 4)
 #define SPI_SLVCMD                    (1UL << 5)
+
+/* SPI Slave Data Count Register */
+#define SPI_SLAVE_TXCNT_POS           (16)
+#define SPI_SLAVE_TXCNT_MASK          (0x3ff << SPI_SLAVE_TXCNT_POS)
+#define SPI_SLAVE_RXCNT_POS           (0)
+#define SPI_SLAVE_RXCNT_MASK          (0x3ff << SPI_SLAVE_RXCNT_POS)
 
 // SPI flags
 #define SPI_FLAG_INITIALIZED          (1UL << 0)     // SPI initialized
@@ -102,10 +115,13 @@ typedef struct _SPI_INFO {
 	SPI_TRANSFER_INFO	xfer;          // SPI transfer information
 	uint8_t			flags;         // SPI driver flags
 	uint32_t		mode;          // SPI mode
+	uint8_t			is_header;     // Tx header flag
+	uint8_t			*record_rx_buf;// Record the original rx buf (Only used when there is tx header)
 	uint8_t			txfifo_size;   // SPI HW TXFIFO size
 	uint8_t			data_bits;     // the size of one unit SPI data (1 ~ 32, defaults: 8 bits)
-	uint32_t                data_num;      // num of the transfer data(use in auto-size)
-	uint32_t                block_num;     // num of the transfer block(use in auto-size)
+	uint8_t			src_width;     // SPI transfer width(align 8 bits)
+	uint32_t		data_num;      // num of the pure transfer data(Does not include header)
+	uint8_t			tx_header_len; // SPI header(Usually include CMD, ADDRESS and DUMMY)
 } SPI_INFO;
 
 // SPI DMA

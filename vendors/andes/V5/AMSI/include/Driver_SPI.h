@@ -67,12 +67,11 @@
 #define NDS_SPI_SET_DEFAULT_TX_VALUE    (0x12UL << NDS_SPI_CONTROL_Pos)     ///< Set default Transmit value; arg = value
 #define NDS_SPI_CONTROL_SS              (0x13UL << NDS_SPI_CONTROL_Pos)     ///< Control Slave Select; arg: 0=inactive, 1=active 
 #define NDS_SPI_ABORT_TRANSFER          (0x14UL << NDS_SPI_CONTROL_Pos)     ///< Abort current data transfer
-
+#define NDS_SPI_TX_HEADER_LENGTH	(0x20UL << NDS_SPI_CONTROL_Pos)
 
 /****** SPI Slave Select Signal definitions *****/
 #define NDS_SPI_SS_INACTIVE              0                                  ///< SPI Slave Select Signal Inactive
 #define NDS_SPI_SS_ACTIVE                1                                  ///< SPI Slave Select Signal Active
-
 
 /****** SPI specific error codes *****/
 #define NDS_SPI_ERROR_MODE              (NDS_DRIVER_ERROR_SPECIFIC - 1)     ///< Specified Mode not supported
@@ -80,6 +79,7 @@
 #define NDS_SPI_ERROR_DATA_BITS         (NDS_DRIVER_ERROR_SPECIFIC - 3)     ///< Specified number of Data bits not supported
 #define NDS_SPI_ERROR_BIT_ORDER         (NDS_DRIVER_ERROR_SPECIFIC - 4)     ///< Specified Bit order not supported
 #define NDS_SPI_ERROR_SS_MODE           (NDS_DRIVER_ERROR_SPECIFIC - 5)     ///< Specified Slave Select Mode not supported
+#define NDS_SPI_ERROR_HEADER_LEN	(NDS_DRIVER_ERROR_SPECIFIC - 6)
 
 
 /**

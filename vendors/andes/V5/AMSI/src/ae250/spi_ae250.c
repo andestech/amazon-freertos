@@ -13,11 +13,6 @@
 
 // SPI clock for ae250 is 66MHz
 #define SPI_CLK    66000000
-// The delay time between two transfers in the master mode to wait slave ready. /ms
-#define DelayTime  0
-// Number of data transferred per block
-#define BLOCK_SIZE 512
-
 
 // SPI transfer operation
 #define SPI_SEND                      0x0
@@ -159,15 +154,6 @@ static const SPI_RESOURCES spi3_resources = {
 };
 #endif
 
-volatile uint8_t Delay_tmp[16] = {0};
-void delay(uint64_t ms){
-	uint64_t i;
-	for (i = 0; i < (ms * CPUFREQ)/1000; ++i) {
-		Delay_tmp[i % 16] = (i % 16);
-	}
-}
-
-
 // local functions
 static inline uint32_t spi_ip_revision_number(SPI_RESOURCES *spi) {
 	return spi->reg->IDREV & (SPI_IDREV_MAJOR_MASK | SPI_IDREV_MINOR_MASK);
@@ -185,8 +171,7 @@ static inline uint32_t spi_ip_revision_number(SPI_RESOURCES *spi) {
 static uint32_t spi_get_txfifo_size(SPI_RESOURCES *spi) {
 	if (SPI_IP_HAS_FIFO_DEPTH_128(spi)) {
 		return 2 << ((spi->reg->CONFIG >> 4) & 0xf);
-	}
-	else {
+	} else {
 		return 2 << ((spi->reg->CONFIG >> 4) & 0x3);
 	}
 }
@@ -223,6 +208,8 @@ static int32_t spi_initialize(NDS_SPI_SignalEvent_t cb_event, SPI_RESOURCES *spi
 	spi->info->xfer.tx_cnt       = 0U;
 
 	spi->info->mode              = 0U;
+	spi->info->record_rx_buf     = 0U;
+	spi->info->is_header         = 0U;
 	spi->info->txfifo_size = spi_get_txfifo_size(spi);
 
 	spi->info->flags = SPI_FLAG_INITIALIZED;  // SPI is initialized
@@ -328,61 +315,84 @@ static int32_t spi_power_control(NDS_POWER_STATE state, SPI_RESOURCES *spi) {
 	return NDS_DRIVER_OK;
 }
 
-//Sending the data one by one block
-static uint32_t spi_block_send(SPI_RESOURCES *spi) {
+static int32_t spi_send(const void *data, uint32_t num, SPI_RESOURCES *spi) {
 
-	uint32_t Block_tx_num;
 	int32_t stat;
 
-	//Setting the delay time for waiting the slave ready
-	if(spi->info->mode == NDS_SPI_MODE_MASTER){
-		delay(DelayTime);
-	}
+	if ((data == NULL) || (num == 0U))
+		return NDS_DRIVER_ERROR_PARAMETER;
 
-	//Decide the transfer size of one block
-	if (spi->info->block_num == 1){
-		Block_tx_num = spi->info->data_num % BLOCK_SIZE;
-	} else {
-		Block_tx_num = BLOCK_SIZE;
-	}
+	if (!(spi->info->flags & SPI_FLAG_CONFIGURED))
+		return NDS_DRIVER_ERROR;
+
+	if (spi->info->status.busy)
+		return NDS_DRIVER_ERROR_BUSY;
+
+	// set busy flag
+	spi->info->status.busy       = 1U;
+
+	spi->info->status.data_lost  = 0U;
+	spi->info->status.mode_fault = 0U;
+
+	spi->info->xfer.tx_buf   = (uint8_t *)data;
+	spi->info->xfer.tx_cnt   = 0U;
+
+	spi->info->xfer.transfer_op = SPI_SEND;
+
+	// wait prior transfer finish
+	spi_polling_spiactive(spi);
 
 	if ((spi->info->mode & NDS_SPI_TRANSFER_FORMAT_Msk) != NDS_SPI_SLV_DATA_ONLY_TRANSFER) {
 		// set transfer mode to write only and transfer count for write data
-		spi->reg->TRANSCTRL = (SPI_TRANSMODE_WRONLY | WR_TRANCNT(Block_tx_num));
+		spi->reg->TRANSCTRL &= ~(SPI_TRANSMODE_MSK | RD_TRANCNT_MSK | WR_TRANCNT_MSK);
+		spi->reg->TRANSCTRL |= (SPI_TRANSMODE_WRONLY | WR_TRANCNT(num));
 	} else {
 		// SlvDataOnly mode should set TransMode to 0
-		spi->reg->TRANSCTRL = (SPI_TRANSCTRL_SLV_DATA_ONLY | WR_TRANCNT(Block_tx_num));
+		spi->reg->TRANSCTRL &= ~(SPI_TRANSMODE_MSK | RD_TRANCNT_MSK | WR_TRANCNT_MSK);
+		spi->reg->TRANSCTRL |= (SPI_TRANSCTRL_SLV_DATA_ONLY | WR_TRANCNT(num));
 	}
 
-	if (spi->info->data_bits <= 8) { // data bits = 1....8)
-		spi->info->xfer.tx_buf_limit = (uint8_t *)((long)(spi->info->xfer.tx_buf + Block_tx_num));
-	} else if (spi->info->data_bits <= 16){ // data bits = 9....16
-		spi->info->xfer.tx_buf_limit = (uint8_t *)((long)(spi->info->xfer.tx_buf + Block_tx_num * 2));
+	// set TX FIFO threshold to 2
+	spi->reg->CTRL = TXTHRES(2);
+
+	// prepare info that ISR needed
+	spi->info->xfer.txfifo_refill = spi->info->txfifo_size - 2; // TX FIFO threshold = 2
+
+	if (spi->info->data_bits <= 8) { // data bits = 1....8
+		spi->info->xfer.tx_buf_limit = (uint8_t *)((long)(spi->info->xfer.tx_buf + num));
+		spi->info->src_width = 1;
+	} else if (spi->info->data_bits <= 16) { // data bits = 9....16
+		spi->info->xfer.tx_buf_limit = (uint8_t *)((long)(spi->info->xfer.tx_buf + num * 2));
+		spi->info->src_width = 2;
 	} else { // data bits = 17....32
-		spi->info->xfer.tx_buf_limit = (uint8_t *)((long)(spi->info->xfer.tx_buf + Block_tx_num * 4));
+		spi->info->xfer.tx_buf_limit = (uint8_t *)((long)(spi->info->xfer.tx_buf + num * 4));
+		spi->info->src_width = 4;
 	}
 
 	// DMA mode
 	if (spi->dma_tx) {
 		// enable TX DMA
 		spi->reg->CTRL |= TXDMAEN;
+
 		// configure DMA channel
 		stat = dma_channel_configure(spi->dma_tx->channel,
-					    (uint32_t)(long)spi->info->xfer.tx_buf,
-					    (uint32_t)(long)(&(spi->reg->DATA)),
-					    Block_tx_num,
-					    DMA_CH_CTRL_SBSIZE(DMA_BSIZE_1)          |
-					    DMA_CH_CTRL_SWIDTH(DMA_WIDTH_BYTE)       |
-					    DMA_CH_CTRL_DWIDTH(DMA_WIDTH_BYTE)       |
-					    DMA_CH_CTRL_DMODE_HANDSHAKE              |
-					    DMA_CH_CTRL_SRCADDR_INC                  |
-					    DMA_CH_CTRL_DSTADDR_FIX                  |
-					    DMA_CH_CTRL_DSTREQ(spi->dma_tx->reqsel)  |
-					    DMA_CH_CTRL_INTABT                       |
-					    DMA_CH_CTRL_INTERR                       |
-					    DMA_CH_CTRL_INTTC                        |
-					    DMA_CH_CTRL_ENABLE,
-					    spi->dma_tx->cb_event);
+					     (uint32_t)(long)spi->info->xfer.tx_buf,
+					     (uint32_t)(long)(&(spi->reg->DATA)),
+					     num,
+					     DMA_CH_CTRL_SBSIZE(DMA_BSIZE_1)            |
+					     //DMA width setting: 1 byte:0x0, 2 byte:0x1, 4 byte:0x2
+					     DMA_CH_CTRL_SWIDTH(spi->info->src_width/2) |
+					     DMA_CH_CTRL_DWIDTH(spi->info->src_width/2) |
+					     DMA_CH_CTRL_DMODE_HANDSHAKE                |
+					     DMA_CH_CTRL_SRCADDR_INC                    |
+					     DMA_CH_CTRL_DSTADDR_FIX                    |
+					     DMA_CH_CTRL_DSTREQ(spi->dma_tx->reqsel)    |
+					     DMA_CH_CTRL_INTABT                         |
+					     DMA_CH_CTRL_INTERR                         |
+					     DMA_CH_CTRL_INTTC                          |
+					     DMA_CH_CTRL_ENABLE,
+					     spi->dma_tx->cb_event);
+
 		if (stat == -1)
 			return NDS_DRIVER_ERROR;
 
@@ -397,7 +407,6 @@ static uint32_t spi_block_send(SPI_RESOURCES *spi) {
 		// enable TX FIFO underrun interrupt when slave mode
 		if ((spi->info->mode & NDS_SPI_CONTROL_Msk) == NDS_SPI_MODE_SLAVE)
 			spi->reg->INTREN |= SPI_TXFIFOOURINT;
-
 	}
 
 	// trigger transfer when SPI master mode
@@ -405,10 +414,12 @@ static uint32_t spi_block_send(SPI_RESOURCES *spi) {
 		spi->reg->CMD = 0U;
 	}
 
-	return 0;
+	return NDS_DRIVER_OK;
 }
 
-static int32_t spi_send(const void *data, uint32_t num, SPI_RESOURCES *spi) {
+static int32_t spi_receive(void *data, uint32_t num, SPI_RESOURCES *spi) {
+
+	int32_t stat;
 
 	if ((data == NULL) || (num == 0U))
 		return NDS_DRIVER_ERROR_PARAMETER;
@@ -425,57 +436,37 @@ static int32_t spi_send(const void *data, uint32_t num, SPI_RESOURCES *spi) {
 	spi->info->status.data_lost  = 0U;
 	spi->info->status.mode_fault = 0U;
 
-	spi->info->block_num = (uint32_t)(num/BLOCK_SIZE) + 1;
-	spi->info->data_num = num;
-	spi->info->xfer.tx_buf   = (uint8_t *)data;
-	spi->info->xfer.tx_cnt   = 0U;
+	spi->info->xfer.rx_buf = (uint8_t *)data;
+	spi->info->xfer.rx_cnt = 0U;
 
-	spi->info->xfer.transfer_op = SPI_SEND;
+	spi->info->xfer.transfer_op = SPI_RECEIVE;
 
 	// wait prior transfer finish
 	spi_polling_spiactive(spi);
 
-	// set TX FIFO threshold to 2
-	spi->reg->CTRL = TXTHRES(2);
-
-	// prepare info that ISR needed
-	spi->info->xfer.txfifo_refill = spi->info->txfifo_size - 2; // TX FIFO threshold = 2
-
-	//call the block transfer
-	spi_block_send(spi);
-
-	return NDS_DRIVER_OK;
-}
-
-//Receiving the data one by one block
-static uint32_t spi_block_receive(SPI_RESOURCES *spi) {
-
-	uint32_t Block_rx_num;
-	int32_t stat;
-
-	//Setting the delay time for waiting the slave ready
-	if(spi->info->mode == NDS_SPI_MODE_MASTER){
-		delay(DelayTime);
-	}
-
-	//decide the transfer size of one block
-	if (spi->info->block_num == 1) {
-		Block_rx_num = spi->info->data_num % BLOCK_SIZE;
-	} else {
-		Block_rx_num = BLOCK_SIZE;
-	}
-
-
 	if ((spi->info->mode & NDS_SPI_TRANSFER_FORMAT_Msk) != NDS_SPI_SLV_DATA_ONLY_TRANSFER) {
 		// set transfer mode to read only and transfer count for read data
-		spi->reg->TRANSCTRL = (SPI_TRANSMODE_RDONLY | RD_TRANCNT(Block_rx_num));
+		spi->reg->TRANSCTRL &= ~(SPI_TRANSMODE_MSK | RD_TRANCNT_MSK | WR_TRANCNT_MSK);
+		spi->reg->TRANSCTRL |= (SPI_TRANSMODE_RDONLY | RD_TRANCNT(num));
 	} else {
 		// SlvDataOnly mode should set TransMode to 0
-		spi->reg->TRANSCTRL = (SPI_TRANSCTRL_SLV_DATA_ONLY | RD_TRANCNT(Block_rx_num));
+		spi->reg->TRANSCTRL &= ~(SPI_TRANSMODE_MSK | RD_TRANCNT_MSK | WR_TRANCNT_MSK);
+		spi->reg->TRANSCTRL |= (SPI_TRANSCTRL_SLV_DATA_ONLY | RD_TRANCNT(num));
 	}
 
-	 // DMA mode
-	 if (spi->dma_rx) {
+	// set RX FIFO threshold to 2
+	spi->reg->CTRL = RXTHRES(1);
+
+	if (spi->info->data_bits <= 8) { // data bits = 1....8
+		spi->info->src_width = 1;
+	} else if (spi->info->data_bits <= 16) { // data bits = 9....16
+		spi->info->src_width = 2;
+	} else { // data bits = 17....32
+		spi->info->src_width = 4;
+	}
+
+	// DMA mode
+	if (spi->dma_rx) {
 		// enable RX DMA
 		spi->reg->CTRL |= RXDMAEN;
 
@@ -483,17 +474,18 @@ static uint32_t spi_block_receive(SPI_RESOURCES *spi) {
 		stat = dma_channel_configure(spi->dma_rx->channel,
 					     (uint32_t)(long)(&(spi->reg->DATA)),
 					     (uint32_t)(long)spi->info->xfer.rx_buf,
-					     Block_rx_num,
-					     DMA_CH_CTRL_SBSIZE(DMA_BSIZE_1)          |
-					     DMA_CH_CTRL_SWIDTH(DMA_WIDTH_BYTE)       |
-					     DMA_CH_CTRL_DWIDTH(DMA_WIDTH_BYTE)       |
-					     DMA_CH_CTRL_SMODE_HANDSHAKE              |
-					     DMA_CH_CTRL_SRCADDR_FIX                  |
-					     DMA_CH_CTRL_DSTADDR_INC                  |
-					     DMA_CH_CTRL_SRCREQ(spi->dma_rx->reqsel)  |
-					     DMA_CH_CTRL_INTABT                       |
-					     DMA_CH_CTRL_INTERR                       |
-					     DMA_CH_CTRL_INTTC                        |
+					     num,
+					     DMA_CH_CTRL_SBSIZE(DMA_BSIZE_1)            |
+					     //DMA width setting: 1 byte:0x0, 2 byte:0x1, 4 byte:0x2
+					     DMA_CH_CTRL_SWIDTH(spi->info->src_width/2) |
+					     DMA_CH_CTRL_DWIDTH(spi->info->src_width/2) |
+					     DMA_CH_CTRL_SMODE_HANDSHAKE                |
+					     DMA_CH_CTRL_SRCADDR_FIX                    |
+					     DMA_CH_CTRL_DSTADDR_INC                    |
+					     DMA_CH_CTRL_SRCREQ(spi->dma_rx->reqsel)    |
+					     DMA_CH_CTRL_INTABT                         |
+					     DMA_CH_CTRL_INTERR                         |
+					     DMA_CH_CTRL_INTTC                          |
 					     DMA_CH_CTRL_ENABLE,
 					     spi->dma_rx->cb_event);
 
@@ -502,7 +494,9 @@ static uint32_t spi_block_receive(SPI_RESOURCES *spi) {
 
 		// enable interrupts
 		spi->reg->INTREN = SPI_ENDINT;
-	} else {
+
+	} else { // interrupt mode
+
 		// enable interrupts
 		spi->reg->INTREN = (SPI_RXFIFOINT | SPI_ENDINT);
 
@@ -515,12 +509,16 @@ static uint32_t spi_block_receive(SPI_RESOURCES *spi) {
 	if ((spi->info->mode & NDS_SPI_CONTROL_Msk) == NDS_SPI_MODE_MASTER) {
 		spi->reg->CMD = 0U;
 	}
-	return 0;
 
+	return NDS_DRIVER_OK;
 }
-static int32_t spi_receive(void *data, uint32_t num, SPI_RESOURCES *spi) {
 
-	if ((data == NULL) || (num == 0U))
+static int32_t spi_transfer(const void *data_out, void *data_in, uint32_t num, SPI_RESOURCES *spi) {
+
+	uint32_t dma_rx_num = 0;
+	int32_t stat;
+
+	if ((data_out == NULL) || (data_in == NULL) || (num == 0U))
 		return NDS_DRIVER_ERROR_PARAMETER;
 
 	if (!(spi->info->flags & SPI_FLAG_CONFIGURED))
@@ -529,65 +527,64 @@ static int32_t spi_receive(void *data, uint32_t num, SPI_RESOURCES *spi) {
 	if (spi->info->status.busy)
 		return NDS_DRIVER_ERROR_BUSY;
 
+	if (spi->info->tx_header_len > num) {
+		return NDS_SPI_ERROR_HEADER_LEN;
+	}
+
 	// set busy flag
 	spi->info->status.busy       = 1U;
 
 	spi->info->status.data_lost  = 0U;
 	spi->info->status.mode_fault = 0U;
 
-	spi->info->block_num = (uint32_t)(num/BLOCK_SIZE) + 1;
-	spi->info->data_num = num;
-	spi->info->xfer.rx_buf = (uint8_t *)data;
+	spi->info->xfer.rx_buf = (uint8_t *)data_in;
+	spi->info->xfer.tx_buf = (uint8_t *)data_out;
 	spi->info->xfer.rx_cnt = 0U;
+	spi->info->xfer.tx_cnt = 0U;
 
-	spi->info->xfer.transfer_op = SPI_RECEIVE;
+	spi->info->xfer.transfer_op = SPI_TRANSFER;
 
 	// wait prior transfer finish
 	spi_polling_spiactive(spi);
 
-	// set RX FIFO threshold to 2
-	spi->reg->CTRL = RXTHRES(1);
-
-	//call the block transfer
-	spi_block_receive(spi);
-
-	return NDS_DRIVER_OK;
-}
-
-
-//Transfering the data one by one block
-static int32_t spi_block_transfer(SPI_RESOURCES *spi) {
-
-	uint32_t Block_tx_num;
-	int32_t stat;
-
-	//Setting the delay time for waiting the slave ready
-	if(spi->info->mode == NDS_SPI_MODE_MASTER){
-		delay(DelayTime);
-	}
-
-	//Decide the transfer size of one block
-	if (spi->info->block_num == 1){
-		Block_tx_num = spi->info->data_num % BLOCK_SIZE;
-	} else {
-		Block_tx_num = BLOCK_SIZE;
-	}
-
 	if ((spi->info->mode & NDS_SPI_TRANSFER_FORMAT_Msk) != NDS_SPI_SLV_DATA_ONLY_TRANSFER) {
 		// set transfer mode to write and read at the same time and transfer count for write/read data
-		spi->reg->TRANSCTRL = (SPI_TRANSMODE_WRnRD | WR_TRANCNT(Block_tx_num) | RD_TRANCNT(Block_tx_num));
+		spi->reg->TRANSCTRL &= ~(SPI_TRANSMODE_MSK | RD_TRANCNT_MSK | WR_TRANCNT_MSK);
+		spi->reg->TRANSCTRL |= (SPI_TRANSMODE_WRnRD | WR_TRANCNT(num) | RD_TRANCNT(num));
 	} else {
 		// SlvDataOnly mode should set TransMode to 0
-		spi->reg->TRANSCTRL = (SPI_TRANSCTRL_SLV_DATA_ONLY | WR_TRANCNT(Block_tx_num) | RD_TRANCNT(Block_tx_num));
+		spi->reg->TRANSCTRL &= ~(SPI_TRANSMODE_MSK | RD_TRANCNT_MSK | WR_TRANCNT_MSK);
+		spi->reg->TRANSCTRL |= (SPI_TRANSCTRL_SLV_DATA_ONLY | WR_TRANCNT(num) | RD_TRANCNT(num));
 	}
-	if (spi->info->data_bits <= 8) { // data bits = 1....8)
 
-		spi->info->xfer.tx_buf_limit = (uint8_t *)((long)(spi->info->xfer.tx_buf + Block_tx_num));
-	} else if (spi->info->data_bits <= 16){ // data bits = 9....16
-		spi->info->xfer.tx_buf_limit = (uint8_t *)((long)(spi->info->xfer.tx_buf + Block_tx_num * 2));
+	if (spi->info->data_bits <= 8) { // data bits = 1....8)
+		spi->info->xfer.tx_buf_limit = (uint8_t *)((long)(spi->info->xfer.tx_buf + num));
+		spi->info->src_width = 1;
+	} else if (spi->info->data_bits <= 16) { // data bits = 9....16
+		spi->info->xfer.tx_buf_limit = (uint8_t *)((long)(spi->info->xfer.tx_buf + num * 2));
+		spi->info->src_width = 2;
 	} else { // data bits = 17....32
-		spi->info->xfer.tx_buf_limit = (uint8_t *)((long)(spi->info->xfer.tx_buf + Block_tx_num * 4));
+		spi->info->xfer.tx_buf_limit = (uint8_t *)((long)(spi->info->xfer.tx_buf + num * 4));
+		spi->info->src_width = 4;
 	}
+
+	if ((spi->info->tx_header_len > 0) && (spi->info->mode & NDS_SPI_CONTROL_Msk)) {
+		// If there is tx header, only setting dma to receive the header at first time 
+		dma_rx_num = spi->info->tx_header_len;
+		spi->info->record_rx_buf = (uint8_t *)(spi->info->xfer.rx_buf);
+		spi->info->is_header = 1;
+		spi->info->data_num = num - spi->info->tx_header_len;
+	} else {
+		dma_rx_num = num;
+	}
+
+	spi->reg->CTRL &= 0x0;
+
+	// set TX FIFO threshold and RX FIFO threshold to 2
+	spi->reg->CTRL |= (TXTHRES(2) | RXTHRES(1));
+
+	// prepare info that ISR needed
+	spi->info->xfer.txfifo_refill = spi->info->txfifo_size - 2; // TX FIFO threshold = 2
 
 	// DMA mode
 	if (spi->dma_tx || spi->dma_rx) {
@@ -599,17 +596,18 @@ static int32_t spi_block_transfer(SPI_RESOURCES *spi) {
 			stat = dma_channel_configure(spi->dma_tx->channel,
 						      (uint32_t)(long)spi->info->xfer.tx_buf,
 						      (uint32_t)(long)(&(spi->reg->DATA)),
-						      Block_tx_num,
-						      DMA_CH_CTRL_SBSIZE(DMA_BSIZE_1)          |
-						      DMA_CH_CTRL_SWIDTH(DMA_WIDTH_BYTE)       |
-						      DMA_CH_CTRL_DWIDTH(DMA_WIDTH_BYTE)       |
-						      DMA_CH_CTRL_DMODE_HANDSHAKE              |
-						      DMA_CH_CTRL_SRCADDR_INC                  |
-						      DMA_CH_CTRL_DSTADDR_FIX                  |
-						      DMA_CH_CTRL_DSTREQ(spi->dma_tx->reqsel)  |
-						      DMA_CH_CTRL_INTABT                       |
-						      DMA_CH_CTRL_INTERR                       |
-						      DMA_CH_CTRL_INTTC                        |
+						      num,
+						      DMA_CH_CTRL_SBSIZE(DMA_BSIZE_1)            |
+						      //DMA width setting: 1 byte:0x0, 2 byte:0x1, 4 byte:0x2
+						      DMA_CH_CTRL_SWIDTH(spi->info->src_width/2) |
+						      DMA_CH_CTRL_DWIDTH(spi->info->src_width/2) |
+						      DMA_CH_CTRL_DMODE_HANDSHAKE                |
+						      DMA_CH_CTRL_SRCADDR_INC                    |
+						      DMA_CH_CTRL_DSTADDR_FIX                    |
+						      DMA_CH_CTRL_DSTREQ(spi->dma_tx->reqsel)    |
+						      DMA_CH_CTRL_INTABT                         |
+						      DMA_CH_CTRL_INTERR                         |
+						      DMA_CH_CTRL_INTTC                          |
 						      DMA_CH_CTRL_ENABLE,
 						      spi->dma_tx->cb_event);
 			if (stat == -1)
@@ -624,17 +622,18 @@ static int32_t spi_block_transfer(SPI_RESOURCES *spi) {
 			stat = dma_channel_configure(spi->dma_rx->channel,
 						     (uint32_t)(long)(&(spi->reg->DATA)),
 						     (uint32_t)(long)spi->info->xfer.rx_buf,
-						     Block_tx_num,
-						     DMA_CH_CTRL_SBSIZE(DMA_BSIZE_1)          |
-						     DMA_CH_CTRL_SWIDTH(DMA_WIDTH_BYTE)       |
-						     DMA_CH_CTRL_DWIDTH(DMA_WIDTH_BYTE)       |
-						     DMA_CH_CTRL_SMODE_HANDSHAKE              |
-						     DMA_CH_CTRL_SRCADDR_FIX                  |
-						     DMA_CH_CTRL_DSTADDR_INC                  |
-						     DMA_CH_CTRL_SRCREQ(spi->dma_rx->reqsel)  |
-						     DMA_CH_CTRL_INTABT                       |
-						     DMA_CH_CTRL_INTERR                       |
-						     DMA_CH_CTRL_INTTC                        |
+						     dma_rx_num,
+						     DMA_CH_CTRL_SBSIZE(DMA_BSIZE_1)            |
+						     //DMA width setting: 1 byte:0x0, 2 byte:0x1, 4 byte:0x2
+						     DMA_CH_CTRL_SWIDTH(spi->info->src_width/2) |
+						     DMA_CH_CTRL_DWIDTH(spi->info->src_width/2) |
+						     DMA_CH_CTRL_SMODE_HANDSHAKE                |
+						     DMA_CH_CTRL_SRCADDR_FIX                    |
+						     DMA_CH_CTRL_DSTADDR_INC                    |
+						     DMA_CH_CTRL_SRCREQ(spi->dma_rx->reqsel)    |
+						     DMA_CH_CTRL_INTABT                         |
+						     DMA_CH_CTRL_INTERR                         |
+						     DMA_CH_CTRL_INTTC                          |
 						     DMA_CH_CTRL_ENABLE,
 						     spi->dma_rx->cb_event);
 			if (stat == -1)
@@ -656,50 +655,8 @@ static int32_t spi_block_transfer(SPI_RESOURCES *spi) {
 
 	// trigger transfer when SPI master mode
 	if ((spi->info->mode & NDS_SPI_CONTROL_Msk) == NDS_SPI_MODE_MASTER) {
-		spi->reg->CMD = 0U;
+		spi->reg->CMD = 0;
 	}
-
-	return 0;
-}
-
-static int32_t spi_transfer(const void *data_out, void *data_in, uint32_t num, SPI_RESOURCES *spi) {
-
-	if ((data_out == NULL) || (data_in == NULL) || (num == 0U))
-		return NDS_DRIVER_ERROR_PARAMETER;
-
-	if (!(spi->info->flags & SPI_FLAG_CONFIGURED))
-		return NDS_DRIVER_ERROR;
-
-	if (spi->info->status.busy)
-		return NDS_DRIVER_ERROR_BUSY;
-
-	// set busy flag
-	spi->info->status.busy       = 1U;
-
-	spi->info->status.data_lost  = 0U;
-	spi->info->status.mode_fault = 0U;
-
-	spi->info->block_num = (uint32_t)(num/BLOCK_SIZE) + 1;
-	spi->info->data_num = num;
-
-	spi->info->xfer.rx_buf = (uint8_t *)data_out;
-	spi->info->xfer.tx_buf = (uint8_t *)data_in;
-
-	spi->info->xfer.rx_cnt = 0U;
-	spi->info->xfer.tx_cnt = 0U;
-
-	spi->info->xfer.transfer_op = SPI_TRANSFER;
-
-	// wait prior transfer finish
-	spi_polling_spiactive(spi);
-
-	// set TX FIFO threshold and RX FIFO threshold to 2
-	spi->reg->CTRL = (TXTHRES(2) | RXTHRES(1));
-
-	// prepare info that ISR needed
-	spi->info->xfer.txfifo_refill = spi->info->txfifo_size - 2; // TX FIFO threshold = 2
-
-	spi_block_transfer(spi);
 
 	return NDS_DRIVER_OK;
 }
@@ -811,6 +768,10 @@ static int32_t spi_control(uint32_t control, uint32_t arg, SPI_RESOURCES *spi) {
 		case NDS_SPI_GET_BUS_SPEED: // get bus speed in bps
 			sclk_div = spi->reg->TIMING & 0xff;
 			return (SPI_CLK / ((sclk_div + 1) * 2));
+
+		case NDS_SPI_TX_HEADER_LENGTH:
+			spi->info->tx_header_len = (uint8_t)arg;
+			return NDS_DRIVER_OK;
 	}
 
 	// SPI slave select mode for master
@@ -873,10 +834,12 @@ static int32_t spi_control(uint32_t control, uint32_t arg, SPI_RESOURCES *spi) {
 	// set number of data bits
 	spi->info->data_bits = ((control & NDS_SPI_DATA_BITS_Msk) >> NDS_SPI_DATA_BITS_Pos);
 
-	if ((spi->info->data_bits < 1U) || (spi->info->data_bits > 32U))
+	if ((spi->info->data_bits < 1U) || (spi->info->data_bits > 32U)) {
 		return NDS_SPI_ERROR_DATA_BITS;
-	else
+	} else {
+		spi->reg->TRANSFMT &= ~(DATA_BITS_MSK);
 		spi->reg->TRANSFMT |= DATA_BITS(spi->info->data_bits);
+	}
 
 	// set SPI bit order
 	if ((control & NDS_SPI_BIT_ORDER_Msk) == NDS_SPI_LSB_MSB)
@@ -902,8 +865,6 @@ static void spi_irq_handler(SPI_RESOURCES *spi) {
 	uint32_t data = 0;
 	uint32_t rx_num = 0;
 	uint32_t event = 0;
-	uint32_t have_clear_state = 0;
-
 
 	// read status register
 	status = spi->reg->INTRST;
@@ -947,8 +908,7 @@ static void spi_irq_handler(SPI_RESOURCES *spi) {
 		// get number of valid entries in the RX FIFO
 		if (SPI_IP_HAS_FIFO_DEPTH_128(spi)) {
 			rx_num = (((spi->reg->STATUS >> 8) & 0x2f) | ((spi->reg->STATUS & (0x3 << 24)) >> 18));
-		}
-		else {
+		} else {
 			rx_num = (spi->reg->STATUS >> 8) & 0x1f;
 		}
 
@@ -971,70 +931,48 @@ static void spi_irq_handler(SPI_RESOURCES *spi) {
 					spi->info->xfer.rx_buf++;
 				}
 			}
+
+			//If there is a tx header on spi_transfer, drop the dummy data from slave when master sending header.
+			if ((spi->info->is_header == 1) && (spi->info->xfer.rx_cnt == spi->info->tx_header_len)) {
+				spi->info->is_header = 0;
+				spi->info->xfer.rx_buf = spi->info->record_rx_buf;
+				spi->info->xfer.rx_cnt = 0;
+			}
 		}
 	}
 
 	if (status & SPI_ENDINT) {
 		// disable SPI interrupts
 		spi->reg->INTREN = 0;
-		spi->info->block_num--;
 
-		if (spi->dma_tx) {
+		if (spi->dma_tx && ((spi->info->xfer.transfer_op == SPI_SEND) || (spi->info->xfer.transfer_op == SPI_TRANSFER))) {
 			if (!spi->info->xfer.dma_tx_complete)
 				dma_channel_disable(spi->dma_tx->channel);
 
-			if(spi->info->block_num){
-				spi->info->xfer.tx_buf = spi->info->xfer.tx_buf + BLOCK_SIZE;
-			}
 			spi->info->xfer.dma_tx_complete = 0;
 		}
 
-		if (spi->dma_rx) {
+		if (spi->dma_rx && ((spi->info->xfer.transfer_op == SPI_RECEIVE) || (spi->info->xfer.transfer_op == SPI_TRANSFER))) {
 			if (!spi->info->xfer.dma_rx_complete)
 				dma_channel_disable(spi->dma_rx->channel);
 
-			if(spi->info->block_num){
-				spi->info->xfer.rx_buf = spi->info->xfer.rx_buf + BLOCK_SIZE;
-			}
 			spi->info->xfer.dma_rx_complete = 0;
 		}
 
 		// clear TX/RX FIFOs
-		spi->reg->CTRL |= (TXFIFORST | RXFIFORST );
+		spi->reg->CTRL = (TXFIFORST | RXFIFORST);
 
-		//If there is no block need to be transfered, meaning the transfer completed and spi not busy.
-		if (spi->info->block_num == 0){
-			spi->info->status.busy = 0U;
-			event |= NDS_SPI_EVENT_TRANSFER_COMPLETE;
+		spi->info->status.busy = 0U;
 
-		//If there is block need to be transfer,call the block transfer function again.
-		} else if (spi->info->xfer.transfer_op == SPI_SEND){
-			spi->reg->INTRST = status;
-			spi->reg->INTRST;
-			have_clear_state = 1;
-			spi_block_send(spi);
-
-		} else if (spi->info->xfer.transfer_op == SPI_RECEIVE){
-			spi->reg->INTRST = status;
-			spi->reg->INTRST;
-			have_clear_state = 1;
-			spi_block_receive(spi);
-		} else if (spi->info->xfer.transfer_op == SPI_TRANSFER){
-			spi->reg->INTRST = status;
-			spi->reg->INTRST;
-			have_clear_state = 1;
-			spi_block_transfer(spi);
-		}
+		event |= NDS_SPI_EVENT_TRANSFER_COMPLETE;
 	}
 
-	if(have_clear_state == 0){
-		// clear interrupt status
-		spi->reg->INTRST = status;
-		// make sure "write 1 clear" take effect before iret
-		spi->reg->INTRST;
-	}
+	// clear interrupt status
+	spi->reg->INTRST = status;
+	// make sure "write 1 clear" take effect before iret
+	spi->reg->INTRST;
 
-	if ((spi->info->cb_event != NULL) && (event != 0)){
+	if ((spi->info->cb_event != NULL) && (event != 0)) {
 		spi->info->cb_event(event);
 	}
 }
@@ -1062,7 +1000,30 @@ static void spi_dma_tx_event (uint32_t event, SPI_RESOURCES * spi) {
 static void spi_dma_rx_event (uint32_t event, SPI_RESOURCES * spi) {
 	switch (event) {
 		case DMA_EVENT_TERMINAL_COUNT_REQUEST:
-			spi->info->xfer.dma_rx_complete = 1;
+			if (spi->info->is_header == 0) {
+				spi->info->xfer.dma_rx_complete = 1;
+			} else {
+				//Setting another dma transfer to cover the dummy data from slave when master is sending header.
+				// configure DMA channel
+				dma_channel_configure(spi->dma_rx->channel,
+						       (uint32_t)(long)(&(spi->reg->DATA)),
+						       (uint32_t)(long)spi->info->xfer.rx_buf,
+						       spi->info->data_num,
+						       DMA_CH_CTRL_SBSIZE(DMA_BSIZE_1)            |
+						       //DMA width setting: 1 byte:0x0, 2 byte:0x1, 4 byte:0x2
+						       DMA_CH_CTRL_SWIDTH(spi->info->src_width/2) |
+						       DMA_CH_CTRL_DWIDTH(spi->info->src_width/2) |
+						       DMA_CH_CTRL_SMODE_HANDSHAKE                |
+						       DMA_CH_CTRL_SRCADDR_FIX                    |
+						       DMA_CH_CTRL_DSTADDR_INC                    |
+						       DMA_CH_CTRL_SRCREQ(spi->dma_rx->reqsel)    |
+						       DMA_CH_CTRL_INTABT                         |
+						       DMA_CH_CTRL_INTERR                         |
+						       DMA_CH_CTRL_INTTC                          |
+						       DMA_CH_CTRL_ENABLE,
+						       spi->dma_rx->cb_event);
+				spi->info->is_header = 0;
+			}
 			break;
 		case DMA_EVENT_ERROR:
 		default:
