@@ -265,7 +265,7 @@ typedef struct
 extern I2C_INFO I2C_Info;
 extern int32_t i2cx_control(uint32_t control, uint32_t arg0, uint32_t arg1, I2C_RESOURCES* i2c);
 extern void i2cx_signalevent(uint32_t event, I2C_RESOURCES* i2c);
-extern void i2cx_master_fifo_write(I2C_RESOURCES* i2c, uint8_t is_flash_addr);
+extern void i2cx_master_fifo_write(I2C_RESOURCES* i2c, uint8_t is_preceding);
 extern void i2cx_slave_fifo_write(I2C_RESOURCES* i2c);
 extern void i2cx_master_fifo_read(I2C_RESOURCES* i2c);
 extern void i2cx_slave_fifo_read(I2C_RESOURCES* i2c, uint8_t is_fifo_full);

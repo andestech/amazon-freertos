@@ -858,13 +858,13 @@ void i2c_cmpl_handler(I2C_RESOURCES* i2c) {
 }
 
 // basic fifo write function
-void i2cx_master_fifo_write(I2C_RESOURCES* i2c, uint8_t is_flash_addr) {
+void i2cx_master_fifo_write(I2C_RESOURCES* i2c, uint8_t is_preceding) {
 	uint32_t i = 0, write_fifo_count = 0, Tmp_C = 0;
 
 	write_fifo_count = ((i2c->info->Xfer_Wt_Num - i2c->info->Xfered_Data_Wt_Ptr) >= i2c->info->FIFO_Depth) ?
 				i2c->info->FIFO_Depth : (i2c->info->Xfer_Wt_Num - i2c->info->Xfered_Data_Wt_Ptr);
 
-	if (is_flash_addr) {
+	if (is_preceding) {
 		write_fifo_count = 2;
 	}
 

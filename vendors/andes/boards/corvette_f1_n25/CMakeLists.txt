@@ -124,10 +124,10 @@ target_sources(
         "${bsp_dir}/libc/stdio/printf.c"
         "${bsp_dir}/driver/uart.c"
         "${afr_ports_dir}/i2c_eeprom/src/i2c_eeprom.c"
-        "${amsi_dir}/src/ae250/dma_ae250.c"
-        "${amsi_dir}/src/ae250/gpio_ae250.c"
-        "${amsi_dir}/src/ae250/i2c_ae250.c"
-        "${amsi_dir}/src/ae250/spi_ae250.c"
+        "${amsi_dir}/ae250/dma_ae250.c"
+        "${amsi_dir}/ae250/gpio_ae250.c"
+        "${amsi_dir}/ae250/i2c_ae250.c"
+        "${amsi_dir}/ae250/spi_ae250.c"
 )
 
 target_include_directories(
@@ -157,8 +157,8 @@ target_include_directories(
         "${AFR_MODULES_C_SDK_DIR}/standard/mqtt/include"
         "${bsp_dir}/driver/include"
         "${afr_ports_dir}/i2c_eeprom/inc"
-        "${amsi_dir}/src/ae250"
-        "${amsi_dir}/src/ae250/config"
+        "${amsi_dir}/ae250"
+        "${amsi_dir}/ae250/config"
         "${amsi_dir}/include"
 
         "${board_dir}/config_files"
