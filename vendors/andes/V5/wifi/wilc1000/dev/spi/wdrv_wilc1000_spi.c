@@ -92,12 +92,12 @@ bool WDRV_STUB_SPI_In(unsigned char *const buf, uint32_t size)
 {
 	NDS_DRIVER_SPI *SPI_Dri = &Driver_SPI3;
 	uint32_t ret = -1;
-	uint8_t data_in[TOTAL_TRANSFER_SIZE] = {0};
+	uint8_t data_out[TOTAL_TRANSFER_SIZE] = {0};
 
-	ret = SPI_Dri->Transfer((uint8_t *)data_in, buf, size);
+	ret = SPI_Dri->Transfer((uint8_t *)data_out, buf, size);
 
 	while ( ret == NDS_DRIVER_ERROR_BUSY){
-		ret = SPI_Dri->Transfer((uint8_t *)data_in, buf, size);
+		ret = SPI_Dri->Transfer((uint8_t *)data_out, buf, size);
 	}
 
 	wait_complete();
